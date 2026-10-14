@@ -4,7 +4,7 @@ Tags: multilingual, translation, language switcher, hreflang, block editor
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,7 +99,7 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 
 == Changelog ==
 
-= Unreleased =
+= 0.3.0 =
 * Tables can be translated cell by cell, like any other text (WordPress 6.9 and later: earlier versions don't mark table cells as content).
 * Numbers, prices and codes without words no longer count as untranslated.
 * Typing a translation also works in blocks that update their attributes through a function, like the table in WordPress 7.
