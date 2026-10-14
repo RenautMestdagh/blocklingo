@@ -40,8 +40,8 @@ ddev npm run build         # or: ddev npm start (rebuilds on change)
 | `ddev npm run lint` / `ddev npm run format` | JS and CSS: WordPress ESLint, Stylelint and Prettier configs |
 | `ddev npm run plugin-zip` | Zip of the plugin as it ships |
 
-GitHub Actions run on every push and pull request: **Lint** (PHPCS, PHP syntax 7.4 to 8.4, ESLint,
-Stylelint, build), **Tests** (PHPUnit on PHP 7.4 + WordPress 6.6 up to the latest), **Plugin Check**
+GitHub Actions run on every push and pull request: **Lint** (PHPCS, PHP syntax 7.4 to 8.5, ESLint,
+Stylelint, build), **Tests** (PHPUnit on every PHP version from 7.4 to 8.5 against WordPress 6.6, 6.9 and the latest), **Plugin Check**
 (the checks WordPress.org runs) and, on `main`, **Format** (fixes style and commits it).
 
 ## License
