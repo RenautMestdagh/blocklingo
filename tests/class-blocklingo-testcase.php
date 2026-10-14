@@ -21,6 +21,9 @@ abstract class Blocklingo_TestCase extends WP_UnitTestCase {
 	public function set_up(): void {
 		parent::set_up();
 		$this->set_permalink_structure( '/%postname%/' );
+		// Category and tag addresses need the taxonomies registered under that structure.
+		create_initial_taxonomies();
+		flush_rewrite_rules( false );
 		$this->set_languages();
 		Request::detect();
 		// The test suite resets post types between tests, and with them their meta fields.
