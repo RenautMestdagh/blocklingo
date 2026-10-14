@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "blocklingo/language-switcher",
+	"version": "0.1.0",
+	"title": "Language Switcher",
+	"category": "widgets",
+	"icon": "translation",
+	"description": "Links to the page being viewed in the site's other languages.",
+	"keywords": [ "language", "translation", "multilingual" ],
+	"textdomain": "blocklingo",
+	"attributes": {
+		"label": {
+			"type": "string",
+			"enum": [ "name", "code" ],
+			"default": "name"
+		},
+		"showCurrent": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": [ "left", "center", "right" ],
+		"color": { "text": true, "background": true, "link": true },
+		"spacing": { "margin": true, "padding": true, "blockGap": true },
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontWeight": true,
+			"__experimentalTextTransform": true
+		},
+		"layout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"default": { "type": "flex", "flexWrap": "wrap" }
+		}
+	},
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css"
+}

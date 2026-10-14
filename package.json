@@ -1,0 +1,40 @@
+{
+	"name": "blocklingo",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Multilingual WordPress, block by block.",
+	"license": "GPL-2.0-or-later",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RenautMestdagh/blocklingo.git"
+	},
+	"engines": {
+		"node": ">=22"
+	},
+	"scripts": {
+		"build": "wp-scripts build --webpack-src-dir=src --output-path=build",
+		"start": "wp-scripts start --webpack-src-dir=src --output-path=build",
+		"lint": "npm run lint:js && npm run lint:css",
+		"lint:js": "wp-scripts lint-js src assets",
+		"lint:css": "wp-scripts lint-style \"src/**/*.scss\" \"assets/**/*.css\"",
+		"format": "wp-scripts format src assets",
+		"plugin-zip": "wp-scripts plugin-zip"
+	},
+	"devDependencies": {
+		"@wordpress/block-editor": "^18.1.0",
+		"@wordpress/blocks": "^16.2.0",
+		"@wordpress/components": "^42.0.0",
+		"@wordpress/i18n": "^6.30.0",
+		"@wordpress/scripts": "^36.1.0",
+		"@wordpress/server-side-render": "^6.33.0"
+	},
+	"files": [
+		"blocklingo.php",
+		"uninstall.php",
+		"readme.txt",
+		"includes",
+		"assets",
+		"build",
+		"languages"
+	]
+}

@@ -1,0 +1,30 @@
+name: Plugin Check
+
+# The checks WordPress.org runs on every plugin submission, on the plugin as it ships.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: plugin-check-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  plugin-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+
+      - name: Copy the plugin as it ships
+        run: rsync -a --exclude-from=.distignore ./ /tmp/blocklingo/
+
+      - uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: /tmp/blocklingo

@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<ruleset name="Blocklingo">
+	<description>WordPress Coding Standards for Blocklingo.</description>
+
+	<file>.</file>
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
+	<exclude-pattern>/build/*</exclude-pattern>
+	<exclude-pattern>/wordpress/*</exclude-pattern>
+	<exclude-pattern>/.ddev/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg name="parallel" value="8"/>
+	<arg value="sp"/>
+
+	<config name="minimum_wp_version" value="6.6"/>
+	<config name="testVersion" value="7.4-"/>
+
+	<rule ref="WordPress">
+		<!-- Short array syntax is the norm in modern WordPress code. -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array"><element value="blocklingo"/></property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="blocklingo"/>
+				<element value="Blocklingo"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- Tests: PHPUnit naming (FooTest.php), fixtures in global scope, test names that say what they
+	     test instead of doc comments, and request globals set on purpose. -->
+	<rule ref="WordPress.Files.FileName"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="Squiz.Commenting.FunctionComment.Missing"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="Squiz.Commenting.ClassComment.Missing"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="WordPress.Security"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="WordPress.NamingConventions.ValidFunctionName"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals"><exclude-pattern>/tests/*</exclude-pattern></rule>
+	<rule ref="WordPress.WP.GlobalVariablesOverride"><exclude-pattern>/tests/*</exclude-pattern></rule>
+</ruleset>
