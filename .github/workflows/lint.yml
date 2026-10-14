@@ -1,0 +1,54 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+concurrency:
+  group: lint-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP coding standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+      - uses: ramsey/composer-install@v3
+      - run: composer lint
+
+  php-syntax:
+    name: PHP ${{ matrix.php }} syntax
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ '7.4', '8.0', '8.1', '8.2', '8.3', '8.4' ]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - run: find . -name '*.php' -not -path './vendor/*' -not -path './node_modules/*' -print0 | xargs -0 -n1 -P4 php -l
+
+  js-css:
+    name: JS and CSS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:js
+      - run: npm run lint:css
+        if: ${{ !cancelled() }}
+      - run: npm run build
+        if: ${{ !cancelled() }}

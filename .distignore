@@ -1,0 +1,25 @@
+# Not part of the plugin as it ships (WordPress.org, zip)
+/.ddev
+/.git
+/.github
+/.claude
+/node_modules
+/src
+/tests
+/vendor
+/wordpress
+/.distignore
+/.editorconfig
+/.gitattributes
+/.gitignore
+/.nvmrc
+/.phpunit.result.cache
+/composer.json
+/composer.lock
+/package.json
+/package-lock.json
+/phpcs.xml.dist
+/phpunit.xml.dist
+/README.md
+/CONTRIBUTING.md
+/*.zip

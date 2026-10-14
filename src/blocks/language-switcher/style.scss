@@ -1,0 +1,17 @@
+/*
+ * Language Switcher: a plain row of links. Colours, spacing and type come
+ * from the block settings.
+ */
+.wp-block-blocklingo-language-switcher__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wp--style--block-gap, 0.75em);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.wp-block-blocklingo-language-switcher__item.is-current a {
+	font-weight: 600;
+	text-decoration: none;
+}
