@@ -219,3 +219,29 @@ export function splitUpdates( attributes, updates, language, names ) {
 	} );
 	return translated ? { ...shared, blocklingo } : shared;
 }
+
+/**
+ * The texts without a translation in a language, one job per block attribute, for
+ * machine translation. Outdated translations are left alone: someone wrote them.
+ *
+ * @param {Array<{clientId: string, attributes: Object, names: string[]}>} blocks   Blocks.
+ * @param {string}                                                         language Language code.
+ * @return {Array<{clientId: string, name: string, text: string}>} Jobs.
+ */
+export function collectMissing( blocks, language ) {
+	const jobs = [];
+	blocks.forEach( ( { clientId, attributes, names } ) => {
+		names.forEach( ( name ) => {
+			if (
+				getAttributeStatus( attributes, language, name ) === 'missing'
+			) {
+				jobs.push( {
+					clientId,
+					name,
+					text: toText( attributes[ name ] ),
+				} );
+			}
+		} );
+	} );
+	return jobs;
+}

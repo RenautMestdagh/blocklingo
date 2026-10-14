@@ -26,13 +26,19 @@ Blocklingo makes a WordPress site multilingual without duplicating pages. You wr
 
 * **Translate in the block editor**: choose a language in the Translate sidebar and type the translation into the blocks themselves, with the same layout. Blocks still to translate are faded; blocks whose original changed after translating are marked as outdated. Works in the Site Editor too, for headers, footers, templates and menus.
 * **Blocks from any plugin**: every block with text content can be translated, not only WordPress's own.
+* **Texts outside blocks**: the site title, the tagline and texts of themes and plugins that support Blocklingo (or WPML's string functions) are translated under Settings → Blocklingo → Strings.
+* **Contact Form 7**: labels, placeholders, messages and the auto-reply in every language; messages after sending come back in the language of the page.
+* **Sitemap**: every translated address is added to WordPress's own sitemap.
+* **Optional machine translation**: with your own DeepL API key, fill in all untranslated blocks of a page with one click, then check and adjust.
 
 Blocklingo is under active development.
 
 = For developers =
 
 * `blocklingo_current_language()`, `blocklingo_default_language()`, `blocklingo_languages()`, `blocklingo_current_url( $code )`, `blocklingo_localize_url( $url, $code )`.
-* Filters: `blocklingo_post_types`, `blocklingo_print_hreflang`, `blocklingo_text_attributes`.
+* `blocklingo_register_string( $text, $group, $label, $multiline )` and `blocklingo_translate( $text, $group )` for texts outside blocks.
+* WPML's hooks (`wpml_translate_single_string`, `wpml_register_single_string`, `wpml_current_language`, `wpml_active_languages`…) are answered when WPML is not active.
+* Filters: `blocklingo_post_types`, `blocklingo_print_hreflang`, `blocklingo_text_attributes`, `blocklingo_strings`, `blocklingo_wpml_compat`.
 * Development happens on [GitHub](https://github.com/RenautMestdagh/blocklingo).
 
 == Installation ==
@@ -56,9 +62,19 @@ Nothing: your pages stay as they are, in your default language. Deleting the plu
 
 = Does it send my content anywhere? =
 
-No. Blocklingo works entirely within your site. When you save a new language, WordPress downloads its own translation files from WordPress.org, as it does when you change the site language.
+Not unless you ask it to. Blocklingo works entirely within your site. When you save a new language, WordPress downloads its own translation files from WordPress.org, as it does when you change the site language. Machine translation is off until you add a DeepL API key; see External services.
+
+== External services ==
+
+Blocklingo can use **DeepL** (https://www.deepl.com) to translate texts, only when you add your own DeepL API key under Settings → Blocklingo and then press "Translate empty blocks with DeepL" in the editor.
+
+* What is sent: the texts of the blocks on that page that have no translation yet (including their formatting markup), the default language and the target language, and your API key.
+* When: only when you press the button, from your site's server; never automatically and never from visitors' browsers.
+* Where: api-free.deepl.com (free keys) or api.deepl.com (paid keys).
+
+DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www.deepl.com/privacy
 
 == Changelog ==
 
 = 0.1.0 =
-* First version: languages, language prefixes, translated slugs, hreflang, Language Switcher block, translating blocks in the editor.
+* First version: languages, language prefixes, translated slugs, hreflang, Language Switcher block, translating blocks in the editor, strings for themes and plugins, sitemap, Contact Form 7, optional DeepL.

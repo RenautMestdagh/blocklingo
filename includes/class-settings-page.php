@@ -40,6 +40,33 @@ class Settings_Page {
 				'sanitize_callback' => [ __CLASS__, 'sanitize' ],
 			]
 		);
+		register_setting(
+			self::SLUG,
+			Machine_Translation::OPTION,
+			[
+				'type'              => 'string',
+				'sanitize_callback' => [ __CLASS__, 'sanitize_deepl_key' ],
+				'show_in_rest'      => false,
+			]
+		);
+	}
+
+	/**
+	 * The DeepL key field: empty keeps the saved key (it is never shown again), "remove"
+	 * deletes it.
+	 *
+	 * @param mixed $input Submitted value: [ 'key' => string, 'remove' => '1' ] or a string.
+	 * @return string
+	 */
+	public static function sanitize_deepl_key( $input ): string {
+		if ( is_array( $input ) ) {
+			if ( ! empty( $input['remove'] ) ) {
+				return '';
+			}
+			$input = $input['key'] ?? '';
+		}
+		$key = preg_replace( '/[^A-Za-z0-9:\-]/', '', (string) $input );
+		return '' !== $key ? $key : Machine_Translation::key();
 	}
 
 	/**
@@ -345,6 +372,27 @@ class Settings_Page {
 									<label><input type="checkbox" name="<?php echo esc_attr( Languages::OPTION ); ?>[post_types][]" value="<?php echo esc_attr( $post_type ); ?>" <?php checked( in_array( $post_type, $settings['post_types'], true ) ); ?> /> <?php echo esc_html( $label ); ?></label><br />
 								<?php endforeach; ?>
 							</fieldset>
+						</td>
+					</tr>
+				</table>
+
+				<h2><?php esc_html_e( 'Machine translation (optional)', 'blocklingo' ); ?></h2>
+				<p><?php esc_html_e( 'With a DeepL API key, the Translate sidebar in the editor can fill in blocks that have no translation yet. Texts are sent to DeepL only when you press that button. Free keys from deepl.com translate 500,000 characters a month.', 'blocklingo' ); ?></p>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><label for="blocklingo-deepl-key"><?php esc_html_e( 'DeepL API key', 'blocklingo' ); ?></label></th>
+						<td>
+							<?php $saved = Machine_Translation::key(); ?>
+							<input type="password" class="regular-text" id="blocklingo-deepl-key" name="<?php echo esc_attr( Machine_Translation::OPTION ); ?>[key]" value="" autocomplete="off" />
+							<?php if ( '' !== $saved ) : ?>
+								<p class="description">
+									<?php
+									/* translators: %s: last characters of the saved key. */
+									echo esc_html( sprintf( __( 'A key ending in %s is saved. Leave the field empty to keep it.', 'blocklingo' ), substr( $saved, -4 ) ) );
+									?>
+								</p>
+								<label><input type="checkbox" name="<?php echo esc_attr( Machine_Translation::OPTION ); ?>[remove]" value="1" /> <?php esc_html_e( 'Remove the saved key', 'blocklingo' ); ?></label>
+							<?php endif; ?>
 						</td>
 					</tr>
 				</table>

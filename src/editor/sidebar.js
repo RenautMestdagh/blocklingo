@@ -2,6 +2,7 @@
  * Sidebar "Translate": the language being edited, how far the translation is, and the
  * post's title, address and excerpt in that language.
  */
+import apiFetch from '@wordpress/api-fetch';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	Button,
@@ -11,14 +12,18 @@ import {
 	TextareaControl,
 } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
+import { useState } from '@wordpress/element';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 import { translatableAttributesOf } from './block-edit';
 import { languageName, settings } from './settings';
 import { STORE_NAME } from './store';
-import { getBlockStatus } from './translations';
+import { collectMissing, getBlockStatus, setTranslation } from './translations';
+
+/** Texts per request to the site (it sends them on to DeepL). */
+const BATCH = 50;
 
 /**
  * Translation progress of the blocks in the editor. Plain numbers, so the sidebar only
@@ -135,6 +140,105 @@ function Progress( { language } ) {
 	);
 }
 
+/**
+ * "Translate empty blocks with DeepL": sends the untranslated texts through the site to
+ * DeepL and puts the results into the blocks as their translations.
+ *
+ * @param {Object} props          Props.
+ * @param {string} props.language Language code.
+ */
+function MachineTranslate( { language } ) {
+	const registry = useRegistry();
+	const [ busy, setBusy ] = useState( false );
+	const [ error, setError ] = useState( null );
+	const [ done, setDone ] = useState( null );
+
+	const run = async () => {
+		const editor = registry.select( blockEditorStore );
+		const { updateBlockAttributes } = registry.dispatch( blockEditorStore );
+		const blocks = editor
+			.getClientIdsWithDescendants()
+			.map( ( clientId ) => ( {
+				clientId,
+				attributes: editor.getBlockAttributes( clientId ),
+				names: translatableAttributesOf(
+					editor.getBlockName( clientId )
+				),
+			} ) );
+		const jobs = collectMissing( blocks, language );
+
+		setBusy( true );
+		setError( null );
+		setDone( null );
+		try {
+			for ( let start = 0; start < jobs.length; start += BATCH ) {
+				const batch = jobs.slice( start, start + BATCH );
+				const { translations } = await apiFetch( {
+					path: '/blocklingo/v1/translate',
+					method: 'POST',
+					data: {
+						texts: batch.map( ( job ) => job.text ),
+						target: language,
+					},
+				} );
+				batch.forEach( ( job, index ) => {
+					// Read again: an earlier job may have changed the same block.
+					const attributes = editor.getBlockAttributes(
+						job.clientId
+					);
+					updateBlockAttributes( job.clientId, {
+						blocklingo: setTranslation(
+							attributes,
+							language,
+							job.name,
+							translations[ index ]
+						),
+					} );
+				} );
+			}
+			setDone( jobs.length );
+		} catch ( requestError ) {
+			setError(
+				requestError?.message ??
+					__( 'Machine translation failed.', 'blocklingo' )
+			);
+		}
+		setBusy( false );
+	};
+
+	return (
+		<>
+			<Button
+				variant="secondary"
+				isBusy={ busy }
+				disabled={ busy }
+				onClick={ run }
+			>
+				{ __( 'Translate empty blocks with DeepL', 'blocklingo' ) }
+			</Button>
+			{ done !== null && (
+				<p>
+					{ sprintf(
+						/* translators: %d: number of texts. */
+						_n(
+							'%d text translated. Check it before you save.',
+							'%d texts translated. Check them before you save.',
+							done,
+							'blocklingo'
+						),
+						done
+					) }
+				</p>
+			) }
+			{ error && (
+				<Notice status="error" isDismissible={ false }>
+					{ error }
+				</Notice>
+			) }
+		</>
+	);
+}
+
 function PostFields( { language } ) {
 	const { postType, postId } = useSelect( ( select ) => {
 		const editor = select( editorStore );
@@ -228,6 +332,9 @@ export function Sidebar() {
 							) }
 						</Notice>
 						<Progress language={ language } />
+						{ settings.machineTranslation && (
+							<MachineTranslate language={ language } />
+						) }
 					</>
 				) : (
 					<p>

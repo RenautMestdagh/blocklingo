@@ -7,8 +7,8 @@ Editor. Translated URLs, `hreflang`, a language switcher block. Free, GPL, no ex
 User documentation: [readme.txt](readme.txt) (shown on WordPress.org).
 
 > Status: early development. Done: languages, URL prefixes, translated slugs, link localisation,
-> hreflang, Language Switcher block, translating blocks in the editor. Next: strings for themes and
-> plugins, sitemap, switching the default language.
+> hreflang, Language Switcher block, translating blocks in the editor, strings for themes and
+> plugins, WPML hooks, sitemap, Contact Form 7, optional DeepL. Next: switching the default language.
 
 ## How it works
 
@@ -23,6 +23,11 @@ User documentation: [readme.txt](readme.txt) (shown on WordPress.org).
 | Language Switcher block (source in `src/`, built to `build/`) | `includes/class-switcher-block.php` |
 | Translations in blocks (attribute `blocklingo`: `{ "fr": { "content": [ original, translation ] } }`), shown on the site | `includes/class-blocks.php` |
 | Translating in the editor: language switch, in-place editing, status per block | `src/editor/`, `includes/class-editor.php` |
+| Texts outside blocks (site title, theme and plugin strings), Settings → Blocklingo → Strings | `includes/class-strings.php`, `includes/class-strings-page.php` |
+| WPML's hooks for themes and plugins written for WPML | `includes/class-wpml-compat.php` |
+| One sitemap per other language | `includes/class-sitemap.php`, `includes/class-sitemap-provider.php` |
+| Contact Form 7 (form, messages, auto-reply; language of REST submissions) | `includes/class-contact-form-7.php` |
+| Optional DeepL (REST `blocklingo/v1/translate`, key only on the server) | `includes/class-machine-translation.php` |
 | Functions for themes and plugins | `includes/functions.php` |
 
 ### How a block is translated

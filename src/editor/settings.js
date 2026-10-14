@@ -7,6 +7,7 @@ export const settings = {
 	defaultLanguage: data.defaultLanguage ?? '',
 	languages: Array.isArray( data.languages ) ? data.languages : [],
 	postTypes: Array.isArray( data.postTypes ) ? data.postTypes : [],
+	machineTranslation: data.machineTranslation === true,
 };
 
 /**

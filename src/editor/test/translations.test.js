@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
 	acceptOutdated,
+	collectMissing,
 	getBlockStatus,
 	getPair,
 	getTranslatableAttributes,
@@ -301,5 +302,48 @@ describe( 'splitUpdates', () => {
 
 		// Assert.
 		expect( result ).toEqual( { align: 'center' } );
+	} );
+} );
+
+describe( 'collectMissing', () => {
+	it( 'lists untranslated texts and skips translated, outdated and empty ones', () => {
+		// Arrange.
+		const blocks = [
+			{
+				clientId: 'a',
+				attributes: { content: 'Hallo' },
+				names: [ 'content' ],
+			},
+			{
+				clientId: 'b',
+				attributes: {
+					content: 'Klaar',
+					blocklingo: { fr: { content: [ 'Klaar', 'Prêt' ] } },
+				},
+				names: [ 'content' ],
+			},
+			{
+				clientId: 'c',
+				attributes: {
+					content: 'Nieuw',
+					blocklingo: { fr: { content: [ 'Oud', 'Vieux' ] } },
+				},
+				names: [ 'content' ],
+			},
+			{
+				clientId: 'd',
+				attributes: { alt: '', caption: 'Bijschrift' },
+				names: [ 'alt', 'caption' ],
+			},
+		];
+
+		// Act.
+		const jobs = collectMissing( blocks, 'fr' );
+
+		// Assert.
+		expect( jobs ).toEqual( [
+			{ clientId: 'a', name: 'content', text: 'Hallo' },
+			{ clientId: 'd', name: 'caption', text: 'Bijschrift' },
+		] );
 	} );
 } );

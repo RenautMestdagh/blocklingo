@@ -56,6 +56,8 @@ class Editor {
 			'defaultLanguage' => Languages::default_code(),
 			'languages'       => $languages,
 			'postTypes'       => array_values( Languages::post_types() ),
+			// Only whether it is set up: the key itself never reaches the browser.
+			'machineTranslation' => Machine_Translation::is_enabled(),
 		];
 	}
 
