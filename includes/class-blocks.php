@@ -54,6 +54,30 @@ class Blocks {
 	}
 
 	/**
+	 * Attributes of a block type that hold text to translate: content attributes (role
+	 * "content") that are strings or rich text. The same rule as the editor uses
+	 * (src/editor/translations.js).
+	 *
+	 * @param string $block_name Block name.
+	 * @return string[]
+	 */
+	public static function translatable_attributes( string $block_name ): array {
+		$type = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+		if ( ! $type || ! is_array( $type->attributes ) ) {
+			return [];
+		}
+		$names = [];
+		foreach ( $type->attributes as $name => $attribute ) {
+			$role    = $attribute['role'] ?? ( $attribute['__experimentalRole'] ?? '' );
+			$is_text = in_array( $attribute['type'] ?? '', [ 'string', 'rich-text' ], true ) || in_array( $attribute['source'] ?? '', [ 'html', 'rich-text', 'text' ], true );
+			if ( 'content' === $role && $is_text && ! in_array( $name, [ 'url', 'href', 'src', 'id', 'ref', 'linkTarget', 'rel', 'linkClass', 'anchor' ], true ) ) {
+				$names[] = (string) $name;
+			}
+		}
+		return $names;
+	}
+
+	/**
 	 * The translations of a block in a language: attribute name => [ original, translation ].
 	 * Only well-formed pairs with a non-empty original.
 	 *
@@ -169,19 +193,35 @@ class Blocks {
 	 * @param string $translation Translated value.
 	 */
 	public static function replace( string $html, string $original, string $translation ): string {
+		// Markup is cleaned; attribute values are escaped by the tag processor instead.
+		return self::replace_value( $html, $original, self::safe_markup( $original, $translation ), $translation );
+	}
+
+	/**
+	 * Puts one value where another is, without cleaning it: for content that is already
+	 * stored (switching the default language), not for showing translations.
+	 *
+	 * @param string      $html         Markup.
+	 * @param string      $from         Value to find.
+	 * @param string      $to           Value to put there as element content.
+	 * @param string|null $to_attribute Value to put there as an attribute value ($to when null).
+	 */
+	public static function replace_value( string $html, string $from, string $to, ?string $to_attribute = null ): string {
+		$original    = $from;
+		$translation = $to_attribute ?? $to;
 		if ( '' === $html || '' === $original ) {
 			return $html;
 		}
-		$variants = [ $original => self::safe_markup( $original, $translation ) ];
+		$variants = [ $original => $to ];
 		$escaped  = esc_html( $original );
 		if ( $escaped !== $original ) {
 			$variants[ $escaped ] = esc_html( $translation );
 		}
-		foreach ( $variants as $from => $to ) {
+		foreach ( $variants as $find => $put ) {
 			// Between the end of a tag (or the start of a chunk) and the next tag (or the end).
-			$pattern = '/(?<=>|^)' . preg_quote( $from, '/' ) . '(?=<|$)/';
+			$pattern = '/(?<=>|^)' . preg_quote( $find, '/' ) . '(?=<|$)/';
 			$count   = 0;
-			$result  = preg_replace_callback( $pattern, fn () => $to, $html, -1, $count );
+			$result  = preg_replace_callback( $pattern, fn () => $put, $html, -1, $count );
 			if ( $count > 0 && is_string( $result ) ) {
 				return $result;
 			}

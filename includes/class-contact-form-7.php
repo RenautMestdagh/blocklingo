@@ -146,7 +146,7 @@ class Contact_Form_7 {
 	 */
 	public static function translate_properties( $properties, $contact_form ) {
 		$code = Links::lang();
-		if ( ! is_array( $properties ) || ! Languages::is_multilingual() || Languages::is_default( $code ) || ! is_object( $contact_form ) || ! method_exists( $contact_form, 'id' ) ) {
+		if ( ! is_array( $properties ) || ! Languages::is_multilingual() || ! is_object( $contact_form ) || ! method_exists( $contact_form, 'id' ) ) {
 			return $properties;
 		}
 		$group = self::group( (int) $contact_form->id() );

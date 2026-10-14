@@ -103,6 +103,18 @@ class BlocksTest extends Blocklingo_TestCase {
 		$this->assertStringContainsString( 'alt="Un enfant &amp; un jeu"', $html );
 	}
 
+	public function test_plain_text_in_a_translated_attribute_is_kept(): void {
+		// Arrange: alt text with characters that look like markup.
+		$this->visit( '/fr/' );
+		$content = $this->block( 'image', [ 'blocklingo' => [ 'fr' => [ 'alt' => [ 'Foto', 'Tom & Jerry <3' ] ] ] ], '<figure class="wp-block-image"><img src="/a.jpg" alt="Foto"/></figure>' );
+
+		// Act.
+		$html = do_blocks( $content );
+
+		// Assert.
+		$this->assertStringContainsString( 'alt="Tom &amp; Jerry &lt;3"', $html );
+	}
+
 	public function test_short_original_is_not_replaced_inside_markup(): void {
 		// Arrange: "a" is also a tag name in the markup.
 		$this->visit( '/fr/' );

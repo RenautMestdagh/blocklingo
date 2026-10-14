@@ -8,7 +8,8 @@ User documentation: [readme.txt](readme.txt) (shown on WordPress.org).
 
 > Status: early development. Done: languages, URL prefixes, translated slugs, link localisation,
 > hreflang, Language Switcher block, translating blocks in the editor, strings for themes and
-> plugins, WPML hooks, sitemap, Contact Form 7, optional DeepL. Next: switching the default language.
+> plugins, WPML hooks, sitemap, Contact Form 7, optional DeepL, switching the default language.
+> Next: WordPress.org release.
 
 ## How it works
 
@@ -28,6 +29,7 @@ User documentation: [readme.txt](readme.txt) (shown on WordPress.org).
 | One sitemap per other language | `includes/class-sitemap.php`, `includes/class-sitemap-provider.php` |
 | Contact Form 7 (form, messages, auto-reply; language of REST submissions) | `includes/class-contact-form-7.php` |
 | Optional DeepL (REST `blocklingo/v1/translate`, key only on the server) | `includes/class-machine-translation.php` |
+| Changing the default language (swap originals and translations, resumable), `wp blocklingo switch-default` | `includes/class-default-language.php`, `includes/class-cli.php` |
 | Functions for themes and plugins | `includes/functions.php` |
 
 ### How a block is translated

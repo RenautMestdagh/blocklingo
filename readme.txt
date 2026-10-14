@@ -30,6 +30,7 @@ Blocklingo makes a WordPress site multilingual without duplicating pages. You wr
 * **Contact Form 7**: labels, placeholders, messages and the auto-reply in every language; messages after sending come back in the language of the page.
 * **Sitemap**: every translated address is added to WordPress's own sitemap.
 * **Optional machine translation**: with your own DeepL API key, fill in all untranslated blocks of a page with one click, then check and adjust.
+* **Change the default language later**: translations become the content and the content becomes a translation, with a dry run first and WP-CLI for large sites.
 
 Blocklingo is under active development.
 
@@ -55,6 +56,12 @@ Your site needs pretty permalinks (Settings → Permalinks) for language prefixe
 = Does it work with my theme? =
 
 Yes, with block themes and classic themes. Translating headers, footers and templates in the Site Editor needs a block theme.
+
+= Can I change the default language later? =
+
+Yes. Under Settings → Blocklingo, "Change the default language" turns the translations into the content and the current content into a translation, for pages, posts, templates, menus and patterns; titles and addresses too. A dry run first shows how many blocks have no translation (they keep their text). Back up your database first. For large sites: `wp blocklingo switch-default fr`.
+
+Simply choosing another default language changes nothing in your content: it is then treated as written in that language.
 
 = What happens to my content when I remove the plugin? =
 
