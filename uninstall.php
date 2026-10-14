@@ -10,5 +10,7 @@
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 delete_option( 'blocklingo_settings' );
+delete_option( 'blocklingo_strings' );
+delete_option( 'blocklingo_deepl_key' );
 delete_metadata( 'post', 0, 'blocklingo', '', true );
 delete_metadata( 'post', 0, '_blocklingo_slug', '', true );
