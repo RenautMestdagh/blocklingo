@@ -119,7 +119,7 @@ class Settings_Page {
 
 		$post_types = array_values( array_intersect( array_map( 'sanitize_key', (array) ( $input['post_types'] ?? [] ) ), array_keys( self::post_type_choices() ) ) );
 
-		return Languages::normalize(
+		$settings = Languages::normalize(
 			[
 				'languages'      => array_values( $languages ),
 				'default'        => Languages::sanitize_code( (string) ( $input['default'] ?? '' ) ),
@@ -127,6 +127,22 @@ class Settings_Page {
 				'post_types'     => $post_types,
 			]
 		);
+
+		$previous = Languages::default_code();
+		if ( $settings['default'] !== $previous && get_option( Languages::OPTION ) ) {
+			add_settings_error(
+				Languages::OPTION,
+				'default-changed',
+				sprintf(
+					/* translators: 1: new default language, 2: previous default language. */
+					__( 'The default language is now %1$s. Existing content is treated as written in %1$s; nothing was changed or lost, and choosing %2$s again restores it as it was.', 'blocklingo' ),
+					$settings['languages'][ $settings['default'] ]['name'],
+					Languages::get( $previous )['name'] ?? $previous
+				),
+				'warning'
+			);
+		}
+		return $settings;
 	}
 
 	/**

@@ -23,3 +23,5 @@
 /README.md
 /CONTRIBUTING.md
 /*.zip
+/webpack.config.js
+/vitest.config.mjs

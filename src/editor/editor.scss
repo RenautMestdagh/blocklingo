@@ -1,0 +1,25 @@
+/*
+ * While translating: blocks without a translation show their original
+ * faded, outdated ones get a marker. Only in the editor canvas.
+ */
+.blocklingo-is-missing {
+	opacity: 0.55;
+	outline: 1px dashed currentcolor;
+	outline-offset: 2px;
+}
+
+.blocklingo-is-missing:focus-within {
+	opacity: 1;
+}
+
+.blocklingo-is-outdated {
+	outline: 2px dashed #d63638;
+	outline-offset: 2px;
+}
+
+.blocklingo-language-switch {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 16px;
+}
