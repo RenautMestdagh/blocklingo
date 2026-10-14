@@ -123,9 +123,11 @@ class Blocks {
 	}
 
 	/**
-	 * Blocks rendered without the render_block_data filter (the top level of a block list
-	 * rendered directly, like the links of a Navigation block): translations are applied to
-	 * the output instead.
+	 * Applies translations to the rendered markup too. Needed where the render_block_data
+	 * changes don't reach the output: the top level of a block list rendered directly (the
+	 * links of a Navigation block), and inner blocks before WordPress 6.7, which render
+	 * from a copy of their markup taken before the filter. Where the markup was already
+	 * translated, the original no longer matches and this changes nothing.
 	 *
 	 * @param string $html         Rendered block.
 	 * @param array  $parsed_block Parsed block.
@@ -133,7 +135,7 @@ class Blocks {
 	 */
 	public static function translate_rendered_block( $html, $parsed_block ) {
 		$code = self::target_language();
-		if ( '' === $code || ! is_array( $parsed_block ) || ! empty( $parsed_block[ self::APPLIED ] ) || ! is_string( $html ) || '' === $html ) {
+		if ( '' === $code || ! is_array( $parsed_block ) || ! is_string( $html ) || '' === $html ) {
 			return $html;
 		}
 		foreach ( self::translations( $parsed_block, $code ) as [ $original, $translation ] ) {
