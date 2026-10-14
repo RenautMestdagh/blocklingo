@@ -174,6 +174,53 @@ class LinksTest extends Blocklingo_TestCase {
 		];
 	}
 
+	public function test_category_link_follows_the_page_language(): void {
+		// Arrange.
+		$category = self::factory()->category->create( [ 'slug' => 'nieuws' ] );
+		$this->visit( '/fr/' );
+
+		// Act.
+		$url = get_category_link( $category );
+
+		// Assert.
+		$this->assertSame( $this->home() . '/fr/category/nieuws/', $url );
+	}
+
+	public function test_date_archive_link_follows_the_page_language(): void {
+		// Arrange.
+		$this->visit( '/fr/' );
+
+		// Act.
+		$url = get_month_link( 2026, 10 );
+
+		// Assert.
+		$this->assertSame( $this->home() . '/fr/2026/10/', $url );
+	}
+
+	public function test_archive_links_in_the_default_language_are_unchanged(): void {
+		// Arrange.
+		$category = self::factory()->category->create( [ 'slug' => 'nieuws' ] );
+		$this->visit( '/' );
+
+		// Act.
+		$url = get_category_link( $category );
+
+		// Assert.
+		$this->assertSame( $this->home() . '/category/nieuws/', $url );
+	}
+
+	public function test_category_archive_in_another_language_resolves(): void {
+		// Arrange.
+		$category = self::factory()->category->create( [ 'slug' => 'nieuws' ] );
+		self::factory()->post->create( [ 'post_category' => [ $category ] ] );
+
+		// Act.
+		$this->visit( '/fr/category/nieuws/' );
+
+		// Assert.
+		$this->assertTrue( is_category( $category ) );
+	}
+
 	public function test_links_in_content_follow_the_page_language(): void {
 		// Arrange.
 		$this->visit( '/fr/' );

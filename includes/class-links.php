@@ -45,6 +45,10 @@ class Links {
 		add_filter( 'post_link', [ __CLASS__, 'filter_post_link' ], 20, 2 );
 		add_filter( 'post_type_link', [ __CLASS__, 'filter_post_link' ], 20, 2 );
 		add_filter( 'home_url', [ __CLASS__, 'filter_home_url' ], 20, 2 );
+		// Archives, which classic themes link to from PHP (block themes from blocks).
+		foreach ( [ 'term_link', 'post_type_archive_link', 'year_link', 'month_link', 'day_link', 'author_link', 'get_pagenum_link', 'search_link' ] as $filter ) {
+			add_filter( $filter, [ __CLASS__, 'filter_archive_link' ], 20 );
+		}
 		add_filter( 'render_block', [ __CLASS__, 'localize_content_links' ], 20 );
 		add_filter( 'the_content', [ __CLASS__, 'localize_content_links' ], 20 );
 		// Lookups are only valid for one request (long-running PHP, WP-CLI, tests).
@@ -195,6 +199,20 @@ class Links {
 			}
 		}
 		return self::add_prefix( $link, $code );
+	}
+
+	/**
+	 * Archive links (categories, tags, dates, authors, page 2 of a list, search) in the
+	 * language being shown. Their slugs are not translated.
+	 *
+	 * @param string $link Link.
+	 * @return string
+	 */
+	public static function filter_archive_link( $link ) {
+		if ( ! self::active() || ! is_string( $link ) ) {
+			return $link;
+		}
+		return self::add_prefix( self::strip_prefix( $link ), self::lang() );
 	}
 
 	/**
