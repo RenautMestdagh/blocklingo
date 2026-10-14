@@ -24,6 +24,7 @@ define( 'BLOCKLINGO_DIR', __DIR__ );
 require_once __DIR__ . '/includes/class-languages.php';
 require_once __DIR__ . '/includes/class-request.php';
 require_once __DIR__ . '/includes/class-posts.php';
+require_once __DIR__ . '/includes/class-blocks.php';
 require_once __DIR__ . '/includes/class-links.php';
 require_once __DIR__ . '/includes/class-router.php';
 require_once __DIR__ . '/includes/class-seo.php';
@@ -34,6 +35,7 @@ require_once __DIR__ . '/includes/functions.php';
 // The language has to be known before WordPress loads its translations, so right away.
 Blocklingo\Request::init();
 Blocklingo\Posts::init();
+Blocklingo\Blocks::init();
 Blocklingo\Links::init();
 Blocklingo\Router::init();
 Blocklingo\Seo::init();

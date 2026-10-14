@@ -83,19 +83,26 @@ class Router {
 	 * /contact/ → /nl/contact/.
 	 */
 	public static function redirect_to_language(): void {
-		if ( ! Languages::is_multilingual() || ! Languages::prefix_default() || Request::is_prefixed() ) {
-			return;
-		}
-		if ( ! self::is_plain_page_view() || is_404() ) {
-			return;
-		}
-
-		$code = Languages::default_code();
-		$url  = Links::in_language( $code, fn () => self::current_url() );
-		if ( $url && self::requested_url() !== $url ) {
+		$url = self::language_address();
+		if ( '' !== $url ) {
 			wp_safe_redirect( $url, 301, 'Blocklingo' );
 			exit;
 		}
+	}
+
+	/**
+	 * The default language's address of this request when it came without a prefix, or ''
+	 * when no redirect is needed.
+	 */
+	public static function language_address(): string {
+		if ( ! Languages::is_multilingual() || ! Languages::prefix_default() || Request::is_prefixed() ) {
+			return '';
+		}
+		if ( ! self::is_plain_page_view() || is_404() ) {
+			return '';
+		}
+		$url = Links::in_language( Languages::default_code(), fn () => self::current_url() );
+		return ( $url && self::requested_url() !== $url ) ? wp_sanitize_redirect( $url ) : '';
 	}
 
 	/**
