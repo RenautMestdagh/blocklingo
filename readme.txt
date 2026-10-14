@@ -103,6 +103,7 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 * Numbers, prices and codes without words no longer count as untranslated.
 * Typing a translation also works in blocks that update their attributes through a function, like the table in WordPress 7.
 * Language Switcher: show it as a dropdown (for headers) or as a vertical list.
+* Links can differ per language: while translating, a button's, menu item's, social icon's, image's or file's link is stored for that language only. Links don't count as untranslated.
 
 = 0.2.0 =
 * Classic themes: menus from Appearance → Menus get a label, title attribute and address per language.

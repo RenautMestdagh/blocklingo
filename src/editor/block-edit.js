@@ -16,6 +16,7 @@ import { STORE_NAME } from './store';
 import {
 	acceptOutdated,
 	getBlockStatus,
+	getLinkAttributes,
 	getTextPaths,
 	getTranslatedAttributes,
 	getValue,
@@ -71,7 +72,15 @@ export const withTranslation = createHigherOrderComponent(
 				() => textPathsOf( name, attributes ),
 				[ name, attributes ]
 			);
-			const active = !! language && names.length > 0;
+			// Text and links: typing either writes the translation.
+			const editable = useMemo(
+				() => [
+					...names,
+					...getLinkAttributes( getBlockType( name ) ),
+				],
+				[ name, names ]
+			);
+			const active = !! language && editable.length > 0;
 
 			const shown = useMemo( () => {
 				if ( ! active ) {
@@ -80,9 +89,9 @@ export const withTranslation = createHigherOrderComponent(
 				const translated = getTranslatedAttributes(
 					attributes,
 					language,
-					names
+					editable
 				);
-				return names.reduce(
+				return editable.reduce(
 					( typed, path ) =>
 						setValue(
 							typed,
@@ -94,7 +103,7 @@ export const withTranslation = createHigherOrderComponent(
 						),
 					translated
 				);
-			}, [ active, attributes, language, names ] );
+			}, [ active, attributes, language, editable ] );
 
 			const setShown = useCallback(
 				( updates ) =>
@@ -107,11 +116,11 @@ export const withTranslation = createHigherOrderComponent(
 										? updates( shown )
 										: updates,
 									language,
-									names
+									editable
 								)
 							: updates
 					),
-				[ active, attributes, language, names, setAttributes, shown ]
+				[ active, attributes, language, editable, setAttributes, shown ]
 			);
 
 			if ( ! active ) {

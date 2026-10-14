@@ -18,6 +18,8 @@ const NOT_TEXT = [
 	'rel',
 	'linkClass',
 	'anchor',
+	'textLinkHref',
+	'mediaUrl',
 ];
 
 function isText( name, attribute ) {
@@ -27,6 +29,26 @@ function isText( name, attribute ) {
 		attribute.type === 'rich-text' ||
 		[ 'html', 'rich-text', 'text' ].includes( attribute.source );
 	return role === 'content' && text && ! NOT_TEXT.includes( name );
+}
+
+/** Attributes that hold where a block links to; they may differ per language. */
+const LINKS = [ 'url', 'href', 'textLinkHref', 'mediaUrl' ];
+
+/**
+ * Names of the attributes of a block type that hold a link (a button's or a menu item's
+ * address). They can be translated, but need not be: most links are the same in every
+ * language, so they don't count towards what is left to translate.
+ *
+ * @param {Object} blockType Block type as registered in the editor.
+ * @return {string[]} Attribute names.
+ */
+export function getLinkAttributes( blockType ) {
+	const attributes = blockType?.attributes ?? {};
+	return LINKS.filter( ( name ) => {
+		const attribute = attributes[ name ];
+		const role = attribute?.role ?? attribute?.__experimentalRole;
+		return role === 'content' && attribute.type === 'string';
+	} );
 }
 
 /**

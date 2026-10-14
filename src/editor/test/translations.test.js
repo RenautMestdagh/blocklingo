@@ -7,6 +7,7 @@ import {
 	acceptOutdated,
 	collectMissing,
 	getBlockStatus,
+	getLinkAttributes,
 	getPair,
 	getTextPaths,
 	getTranslatableAttributes,
@@ -78,6 +79,25 @@ describe( 'getTranslatableAttributes', () => {
 
 		// Assert.
 		expect( names ).toEqual( [] );
+	} );
+} );
+
+describe( 'getLinkAttributes', () => {
+	it( 'picks link addresses that are content', () => {
+		// Arrange.
+		const blockType = {
+			attributes: {
+				url: { type: 'string', role: 'content' },
+				href: { type: 'string', source: 'attribute' },
+				text: { type: 'rich-text', role: 'content' },
+			},
+		};
+
+		// Act.
+		const names = getLinkAttributes( blockType );
+
+		// Assert.
+		expect( names ).toEqual( [ 'url' ] );
 	} );
 } );
 

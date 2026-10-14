@@ -281,4 +281,92 @@ class BlocksTest extends Blocklingo_TestCase {
 		// Assert.
 		$this->assertSame( [ 'rows' ], $names );
 	}
+
+	public function test_button_links_to_its_address_in_that_language(): void {
+		// Arrange.
+		$this->visit( '/fr/' );
+		$pairs   = [ 'url' => [ 'https://rosa.be/nl/', 'https://rosa.be/fr/' ] ];
+		$content = $this->block( 'button', [ 'blocklingo' => [ 'fr' => $pairs ] ], '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://rosa.be/nl/">Afspraak</a></div>' );
+
+		// Act.
+		$html = do_blocks( $content );
+
+		// Assert.
+		$this->assertStringContainsString( 'href="https://rosa.be/fr/"', $html );
+		$this->assertStringNotContainsString( 'rosa.be/nl/', $html );
+	}
+
+	public function test_link_in_the_block_comment_is_translated(): void {
+		// Arrange.
+		$this->visit( '/fr/' );
+		$attrs = [
+			'url'        => 'https://rosa.be/nl/',
+			'service'    => 'chain',
+			'label'      => 'Rosa',
+			'blocklingo' => [ 'fr' => [ 'url' => [ 'https://rosa.be/nl/', 'https://rosa.be/fr/' ] ] ],
+		];
+
+		// Act.
+		$html = do_blocks( '<!-- wp:social-links --><ul class="wp-block-social-links"><!-- wp:social-link ' . wp_json_encode( $attrs ) . ' /--></ul><!-- /wp:social-links -->' );
+
+		// Assert.
+		$this->assertStringContainsString( 'href="https://rosa.be/fr/"', $html );
+	}
+
+	public function test_translated_link_is_kept_a_safe_address(): void {
+		// Arrange.
+		$this->visit( '/fr/' );
+		$pairs   = [ 'url' => [ 'https://rosa.be/nl/', 'javascript:alert(1)' ] ];
+		$content = $this->block( 'button', [ 'blocklingo' => [ 'fr' => $pairs ] ], '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://rosa.be/nl/">Afspraak</a></div>' );
+
+		// Act.
+		$html = do_blocks( $content );
+
+		// Assert.
+		$this->assertStringNotContainsString( 'javascript:', $html );
+	}
+
+	/**
+	 * @dataProvider provide_links_of_core_blocks
+	 *
+	 * @param string $name      Block name.
+	 * @param array  $attrs     Attributes, without blocklingo.
+	 * @param string $html      Saved markup ('' for a block saved as a comment only).
+	 * @param string $attribute Attribute holding the link.
+	 */
+	public function test_links_of_core_blocks_are_translated( string $name, array $attrs, string $html, string $attribute ): void {
+		// Arrange.
+		$this->visit( '/fr/' );
+		$attrs['blocklingo'] = [ 'fr' => [ $attribute => [ 'https://example.com/nl', 'https://example.com/fr' ] ] ];
+		$comment             = '<!-- wp:' . $name . ' ' . wp_json_encode( $attrs );
+		$content             = '' === $html ? $comment . ' /-->' : $comment . ' -->' . $html . '<!-- /wp:' . $name . ' -->';
+
+		// Act.
+		$rendered = do_blocks( $content );
+
+		// Assert.
+		$this->assertStringContainsString( 'https://example.com/fr', $rendered );
+		$this->assertStringNotContainsString( 'https://example.com/nl', $rendered );
+	}
+
+	public function provide_links_of_core_blocks(): array {
+		return [
+			'image link'          => [ 'image', [], '<figure class="wp-block-image"><a href="https://example.com/nl"><img src="/a.jpg" alt=""/></a></figure>', 'href' ],
+			'file'                => [ 'file', [ 'href' => 'https://example.com/nl' ], '<div class="wp-block-file"><a href="https://example.com/nl">Brochure</a><a href="https://example.com/nl" class="wp-block-file__button wp-element-button" download>Download</a></div>', 'href' ],
+			'file name link'      => [ 'file', [], '<div class="wp-block-file"><a href="https://example.com/nl">Brochure</a></div>', 'textLinkHref' ],
+			'media and text'      => [ 'media-text', [ 'mediaType' => 'image' ], '<div class="wp-block-media-text"><figure class="wp-block-media-text__media"><img src="https://example.com/nl" alt=""/></figure><div class="wp-block-media-text__content"></div></div>', 'mediaUrl' ],
+			'media and text link' => [ 'media-text', [ 'mediaType' => 'image' ], '<div class="wp-block-media-text"><figure class="wp-block-media-text__media"><a href="https://example.com/nl"><img src="/a.jpg" alt=""/></a></figure><div class="wp-block-media-text__content"></div></div>', 'href' ],
+			'cover image'         => [ 'cover', [ 'url' => 'https://example.com/nl' ], '<div class="wp-block-cover"><img class="wp-block-cover__image-background" alt="" src="https://example.com/nl" data-object-fit="cover"/><div class="wp-block-cover__inner-container"></div></div>', 'url' ],
+			'menu link'           => [
+				'navigation-link',
+				[
+					'label' => 'Rosa',
+					'url'   => 'https://example.com/nl',
+					'kind'  => 'custom',
+				],
+				'',
+				'url',
+			],
+		];
+	}
 }

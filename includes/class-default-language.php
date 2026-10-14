@@ -75,14 +75,15 @@ class Default_Language {
 				}
 			} else {
 				$html    = (string) ( $block['innerHTML'] ?? '' );
-				$new     = Blocks::replace_value( $html, $original, $translation );
+				$replace = in_array( $name, Blocks::LINKS, true ) ? [ Blocks::class, 'replace_link' ] : [ Blocks::class, 'replace_value' ];
+				$new     = $replace( $html, $original, $translation );
 				$swapped = $new !== $html;
 				if ( $swapped ) {
 					$done[ $original ]  = $translation;
 					$block['innerHTML'] = $new;
 					foreach ( (array) ( $block['innerContent'] ?? [] ) as $index => $chunk ) {
 						if ( is_string( $chunk ) ) {
-							$block['innerContent'][ $index ] = Blocks::replace_value( $chunk, $original, $translation );
+							$block['innerContent'][ $index ] = $replace( $chunk, $original, $translation );
 						}
 					}
 				}

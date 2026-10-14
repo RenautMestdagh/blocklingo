@@ -30,6 +30,12 @@ class Blocks {
 	const APPLIED = 'blocklingoApplied';
 
 	/**
+	 * Attributes that hold where a block links to: translated like text, but kept as a URL
+	 * (src/editor/translations.js uses the same names).
+	 */
+	const LINKS = [ 'url', 'href', 'textLinkHref', 'mediaUrl' ];
+
+	/**
 	 * Hooks.
 	 */
 	public static function init(): void {
@@ -94,7 +100,7 @@ class Blocks {
 		}
 		$role    = $attribute['role'] ?? ( $attribute['__experimentalRole'] ?? '' );
 		$is_text = in_array( $attribute['type'] ?? '', [ 'string', 'rich-text' ], true ) || in_array( $attribute['source'] ?? '', [ 'html', 'rich-text', 'text' ], true );
-		return 'content' === $role && $is_text && ! in_array( $name, [ 'url', 'href', 'src', 'id', 'ref', 'linkTarget', 'rel', 'linkClass', 'anchor' ], true );
+		return 'content' === $role && $is_text && ! in_array( $name, array_merge( self::LINKS, [ 'src', 'id', 'ref', 'linkTarget', 'rel', 'linkClass', 'anchor' ] ), true );
 	}
 
 	/**
@@ -151,14 +157,14 @@ class Blocks {
 		foreach ( $pairs as $name => [ $original, $translation ] ) {
 			if ( isset( $parsed_block['attrs'][ $name ] ) ) {
 				if ( $parsed_block['attrs'][ $name ] === $original ) {
-					$parsed_block['attrs'][ $name ] = $translation;
+					$parsed_block['attrs'][ $name ] = in_array( $name, self::LINKS, true ) ? esc_url_raw( $translation ) : $translation;
 				}
 				continue;
 			}
-			$parsed_block['innerHTML'] = self::replace( (string) ( $parsed_block['innerHTML'] ?? '' ), $original, $translation );
+			$parsed_block['innerHTML'] = self::translate_markup( (string) ( $parsed_block['innerHTML'] ?? '' ), $name, $original, $translation );
 			foreach ( (array) ( $parsed_block['innerContent'] ?? [] ) as $index => $chunk ) {
 				if ( is_string( $chunk ) ) {
-					$parsed_block['innerContent'][ $index ] = self::replace( $chunk, $original, $translation );
+					$parsed_block['innerContent'][ $index ] = self::translate_markup( $chunk, $name, $original, $translation );
 				}
 			}
 		}
@@ -182,10 +188,48 @@ class Blocks {
 		if ( '' === $code || ! is_array( $parsed_block ) || ! is_string( $html ) || '' === $html ) {
 			return $html;
 		}
-		foreach ( self::translations( $parsed_block, $code ) as [ $original, $translation ] ) {
-			$html = self::replace( $html, $original, $translation );
+		foreach ( self::translations( $parsed_block, $code ) as $name => [ $original, $translation ] ) {
+			$html = self::translate_markup( $html, $name, $original, $translation );
 		}
 		return $html;
+	}
+
+	/**
+	 * Puts one translated attribute into markup: a link as a link, text as text.
+	 *
+	 * @param string $html        Markup.
+	 * @param string $name        Attribute name or path.
+	 * @param string $original    Original value.
+	 * @param string $translation Translated value.
+	 */
+	private static function translate_markup( string $html, string $name, string $original, string $translation ): string {
+		return in_array( $name, self::LINKS, true )
+			? self::replace_link( $html, $original, esc_url_raw( $translation ) )
+			: self::replace( $html, $original, $translation );
+	}
+
+	/**
+	 * Puts one address where another is, in href and src attributes only.
+	 *
+	 * @param string $html Markup.
+	 * @param string $from Address to find.
+	 * @param string $to   Address to put there.
+	 */
+	public static function replace_link( string $html, string $from, string $to ): string {
+		if ( '' === $html || '' === $from ) {
+			return $html;
+		}
+		$tags     = new \WP_HTML_Tag_Processor( $html );
+		$replaced = false;
+		while ( $tags->next_tag() ) {
+			foreach ( [ 'href', 'src' ] as $attribute ) {
+				if ( $tags->get_attribute( $attribute ) === $from ) {
+					$tags->set_attribute( $attribute, $to );
+					$replaced = true;
+				}
+			}
+		}
+		return $replaced ? $tags->get_updated_html() : $html;
 	}
 
 	/**
