@@ -17,7 +17,7 @@ import { useState } from '@wordpress/element';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
-import { translatableAttributesOf } from './block-edit';
+import { textPathsOf } from './block-edit';
 import { languageName, settings } from './settings';
 import { STORE_NAME } from './store';
 import { collectMissing, getBlockStatus, setTranslation } from './translations';
@@ -42,15 +42,13 @@ function useProgress( language ) {
 			} = select( blockEditorStore );
 			const progress = { total: 0, todo: 0, outdated: 0, next: null };
 			getClientIdsWithDescendants().forEach( ( clientId ) => {
-				const names = translatableAttributesOf(
-					getBlockName( clientId )
+				const attributes = getBlockAttributes( clientId );
+				const names = textPathsOf(
+					getBlockName( clientId ),
+					attributes
 				);
 				const status = names.length
-					? getBlockStatus(
-							getBlockAttributes( clientId ),
-							language,
-							names
-						)
+					? getBlockStatus( attributes, language, names )
 					: null;
 				if ( ! status ) {
 					return;
@@ -158,13 +156,17 @@ function MachineTranslate( { language } ) {
 		const { updateBlockAttributes } = registry.dispatch( blockEditorStore );
 		const blocks = editor
 			.getClientIdsWithDescendants()
-			.map( ( clientId ) => ( {
-				clientId,
-				attributes: editor.getBlockAttributes( clientId ),
-				names: translatableAttributesOf(
-					editor.getBlockName( clientId )
-				),
-			} ) );
+			.map( ( clientId ) => {
+				const attributes = editor.getBlockAttributes( clientId );
+				return {
+					clientId,
+					attributes,
+					names: textPathsOf(
+						editor.getBlockName( clientId ),
+						attributes
+					),
+				};
+			} );
 		const jobs = collectMissing( blocks, language );
 
 		setBusy( true );

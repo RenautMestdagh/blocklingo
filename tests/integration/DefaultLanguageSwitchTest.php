@@ -329,4 +329,49 @@ class DefaultLanguageSwitchTest extends Blocklingo_TestCase {
 		$this->assertSame( 'nl', Languages::default_code() );
 		unset( $_POST['to'], $_REQUEST['_wpnonce'] );
 	}
+
+	public function test_the_same_text_twice_in_a_block_is_swapped_once_for_both(): void {
+		// Arrange.
+		$pairs = [
+			'body.0.cells.0.content' => [ 'Ja', 'Oui' ],
+			'body.1.cells.0.content' => [ 'Ja', 'Oui' ],
+		];
+		$block = parse_blocks( $this->block( 'table', [ 'blocklingo' => [ 'fr' => $pairs ] ], '<figure class="wp-block-table"><table><tbody><tr><td>Ja</td></tr><tr><td>Ja</td></tr></tbody></table></figure>' ) )[0];
+		$stats = [
+			'swapped'      => 0,
+			'untranslated' => 0,
+			'outdated'     => 0,
+		];
+
+		// Act.
+		$switched = Default_Language::switch_block( $block, 'nl', 'fr', $stats );
+
+		// Assert.
+		$this->assertStringContainsString( '<tr><td>Oui</td></tr><tr><td>Oui</td></tr>', $switched['innerHTML'] );
+		$this->assertSame( 2, $stats['swapped'] );
+		$this->assertSame( 0, $stats['outdated'] );
+		$this->assertSame( [ 'Oui', 'Ja' ], $switched['attrs']['blocklingo']['nl']['body.1.cells.0.content'] );
+	}
+
+	public function test_link_in_markup_is_swapped(): void {
+		// Arrange.
+		$pairs = [
+			'url'  => [ 'https://rosa.be/nl/', 'https://rosa.be/fr/' ],
+			'text' => [ 'Afspraak', 'Rendez-vous' ],
+		];
+		$block = parse_blocks( $this->block( 'button', [ 'blocklingo' => [ 'fr' => $pairs ] ], '<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://rosa.be/nl/">Afspraak</a></div>' ) )[0];
+		$stats = [
+			'swapped'      => 0,
+			'untranslated' => 0,
+			'outdated'     => 0,
+		];
+
+		// Act.
+		$switched = Default_Language::switch_block( $block, 'nl', 'fr', $stats );
+
+		// Assert.
+		$this->assertStringContainsString( 'href="https://rosa.be/fr/">Rendez-vous</a>', $switched['innerHTML'] );
+		$this->assertSame( 2, $stats['swapped'] );
+		$this->assertSame( [ 'https://rosa.be/fr/', 'https://rosa.be/nl/' ], $switched['attrs']['blocklingo']['nl']['url'] );
+	}
 }

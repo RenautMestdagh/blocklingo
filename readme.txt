@@ -4,7 +4,7 @@ Tags: multilingual, translation, language switcher, hreflang, block editor
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,14 +17,15 @@ Blocklingo makes a WordPress site multilingual without duplicating pages. You wr
 **Free, completely.** No Pro version, no limit on languages, no account, no external service needed.
 
 * **Translate in the block editor**: choose a language in the Translate sidebar and type the translation into the blocks themselves, in the same layout. Blocks still to translate are faded; blocks whose original changed after translating are marked as outdated. The same works in the Site Editor, for headers, footers, templates and menus.
-* **Blocks from any plugin**: every block with text content can be translated, not only WordPress's own.
+* **Blocks from any plugin**: every block with text content can be translated, not only WordPress's own. Tables are translated cell by cell.
+* **Links per language**: a button, menu item, social icon or image can link somewhere else in each language (a booking page in French, say). Links you don't change stay the same everywhere.
 * **Classic themes too**: menus from Appearance → Menus get a label and address per language.
 * **Any number of languages**, configured under Settings → Blocklingo. Turn a language off to hide it without losing its translations.
 * **Translated addresses**: every page and post gets its own slug per language (`/fr/tarifs/`, `/en/rates/`), parents included. Links inside your content follow the language of the page.
 * **Language prefixes** in the URL for every language, optionally also for the default one (`/en/` …). Old addresses are redirected permanently.
 * **Search engines**: `hreflang` links for every language plus `x-default`, the right `lang` on the page, and every translated address in WordPress's own sitemap.
 * **WordPress itself in the visitor's language**: its own texts (dates, buttons, form messages) follow the language of the page; translations are installed when you add a language.
-* **Language Switcher block** for your header or footer, linking to the same page in the other languages.
+* **Language Switcher block** for your header or footer, linking to the same page in the other languages: as a horizontal or vertical list, or as a dropdown.
 * **Texts outside blocks**: the site title, the tagline and texts of themes and plugins that support Blocklingo (or WPML's string functions) are translated under Settings → Blocklingo → Strings.
 * **Contact Form 7**: labels, placeholders, messages and the auto-reply in every language; messages after sending come back in the language of the page.
 * **Optional machine translation**: with your own DeepL API key, fill in all untranslated blocks of a page with one click, then check and adjust.
@@ -58,7 +59,7 @@ Your site needs pretty permalinks (Settings → Permalinks) for language prefixe
 
 **What a theme can't get automatically**: texts it prints from its own settings (Customizer fields, an options page) without translation files. Themes can register those for Settings → Blocklingo → Strings with two functions; the guide for theme authors is at https://github.com/RenautMestdagh/blocklingo/blob/main/docs/themes.md
 
-**Not supported yet**: widgets in Appearance → Widgets (classic or block widgets). Put translatable content in a template part, a synced pattern or the page itself.
+**Not supported yet**: widgets in Appearance → Widgets (classic or block widgets): put translatable content in a template part, a synced pattern or the page itself. The labels of the Tabs block: while translating, leave them alone, since changing one changes it in every language.
 
 == Frequently Asked Questions ==
 
@@ -97,6 +98,13 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 3. Settings → Blocklingo → Strings: the site title, tagline and texts of themes and plugins in every language.
 
 == Changelog ==
+
+= 0.3.0 =
+* Tables can be translated cell by cell, like any other text (WordPress 6.9 and later: earlier versions don't mark table cells as content).
+* Numbers, prices and codes without words no longer count as untranslated.
+* Typing a translation also works in blocks that update their attributes through a function, like the table in WordPress 7.
+* Language Switcher: show it as a dropdown (for headers) or as a vertical list.
+* Links can differ per language: while translating, a button's, menu item's, social icon's, image's or file's link is stored for that language only. Links don't count as untranslated.
 
 = 0.2.0 =
 * Classic themes: menus from Appearance → Menus get a label, title attribute and address per language.

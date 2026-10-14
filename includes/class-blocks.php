@@ -30,6 +30,12 @@ class Blocks {
 	const APPLIED = 'blocklingoApplied';
 
 	/**
+	 * Attributes that hold where a block links to: translated like text, but kept as a URL
+	 * (src/editor/translations.js uses the same names).
+	 */
+	const LINKS = [ 'url', 'href', 'textLinkHref', 'mediaUrl' ];
+
+	/**
 	 * Hooks.
 	 */
 	public static function init(): void {
@@ -55,8 +61,10 @@ class Blocks {
 
 	/**
 	 * Attributes of a block type that hold text to translate: content attributes (role
-	 * "content") that are strings or rich text. The same rule as the editor uses
-	 * (src/editor/translations.js).
+	 * "content") that are strings or rich text, and lists (source "query", like table rows)
+	 * with such text in their items. The same rule as the editor uses
+	 * (src/editor/translations.js), where each text in a list is translated on its own,
+	 * under its path: `body.0.cells.1.content`.
 	 *
 	 * @param string $block_name Block name.
 	 * @return string[]
@@ -68,13 +76,31 @@ class Blocks {
 		}
 		$names = [];
 		foreach ( $type->attributes as $name => $attribute ) {
-			$role    = $attribute['role'] ?? ( $attribute['__experimentalRole'] ?? '' );
-			$is_text = in_array( $attribute['type'] ?? '', [ 'string', 'rich-text' ], true ) || in_array( $attribute['source'] ?? '', [ 'html', 'rich-text', 'text' ], true );
-			if ( 'content' === $role && $is_text && ! in_array( $name, [ 'url', 'href', 'src', 'id', 'ref', 'linkTarget', 'rel', 'linkClass', 'anchor' ], true ) ) {
+			if ( self::holds_text( (string) $name, (array) $attribute ) ) {
 				$names[] = (string) $name;
 			}
 		}
 		return $names;
+	}
+
+	/**
+	 * Whether an attribute definition holds text, itself or in its list items.
+	 *
+	 * @param string $name      Attribute name.
+	 * @param array  $attribute Attribute definition.
+	 */
+	private static function holds_text( string $name, array $attribute ): bool {
+		if ( 'query' === ( $attribute['source'] ?? '' ) ) {
+			foreach ( (array) ( $attribute['query'] ?? [] ) as $item_name => $item ) {
+				if ( self::holds_text( (string) $item_name, (array) $item ) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+		$role    = $attribute['role'] ?? ( $attribute['__experimentalRole'] ?? '' );
+		$is_text = in_array( $attribute['type'] ?? '', [ 'string', 'rich-text' ], true ) || in_array( $attribute['source'] ?? '', [ 'html', 'rich-text', 'text' ], true );
+		return 'content' === $role && $is_text && ! in_array( $name, array_merge( self::LINKS, [ 'src', 'id', 'ref', 'linkTarget', 'rel', 'linkClass', 'anchor' ] ), true );
 	}
 
 	/**
@@ -131,14 +157,14 @@ class Blocks {
 		foreach ( $pairs as $name => [ $original, $translation ] ) {
 			if ( isset( $parsed_block['attrs'][ $name ] ) ) {
 				if ( $parsed_block['attrs'][ $name ] === $original ) {
-					$parsed_block['attrs'][ $name ] = $translation;
+					$parsed_block['attrs'][ $name ] = in_array( $name, self::LINKS, true ) ? esc_url_raw( $translation ) : $translation;
 				}
 				continue;
 			}
-			$parsed_block['innerHTML'] = self::replace( (string) ( $parsed_block['innerHTML'] ?? '' ), $original, $translation );
+			$parsed_block['innerHTML'] = self::translate_markup( (string) ( $parsed_block['innerHTML'] ?? '' ), $name, $original, $translation );
 			foreach ( (array) ( $parsed_block['innerContent'] ?? [] ) as $index => $chunk ) {
 				if ( is_string( $chunk ) ) {
-					$parsed_block['innerContent'][ $index ] = self::replace( $chunk, $original, $translation );
+					$parsed_block['innerContent'][ $index ] = self::translate_markup( $chunk, $name, $original, $translation );
 				}
 			}
 		}
@@ -162,10 +188,48 @@ class Blocks {
 		if ( '' === $code || ! is_array( $parsed_block ) || ! is_string( $html ) || '' === $html ) {
 			return $html;
 		}
-		foreach ( self::translations( $parsed_block, $code ) as [ $original, $translation ] ) {
-			$html = self::replace( $html, $original, $translation );
+		foreach ( self::translations( $parsed_block, $code ) as $name => [ $original, $translation ] ) {
+			$html = self::translate_markup( $html, $name, $original, $translation );
 		}
 		return $html;
+	}
+
+	/**
+	 * Puts one translated attribute into markup: a link as a link, text as text.
+	 *
+	 * @param string $html        Markup.
+	 * @param string $name        Attribute name or path.
+	 * @param string $original    Original value.
+	 * @param string $translation Translated value.
+	 */
+	private static function translate_markup( string $html, string $name, string $original, string $translation ): string {
+		return in_array( $name, self::LINKS, true )
+			? self::replace_link( $html, $original, esc_url_raw( $translation ) )
+			: self::replace( $html, $original, $translation );
+	}
+
+	/**
+	 * Puts one address where another is, in href and src attributes only.
+	 *
+	 * @param string $html Markup.
+	 * @param string $from Address to find.
+	 * @param string $to   Address to put there.
+	 */
+	public static function replace_link( string $html, string $from, string $to ): string {
+		if ( '' === $html || '' === $from ) {
+			return $html;
+		}
+		$tags     = new \WP_HTML_Tag_Processor( $html );
+		$replaced = false;
+		while ( $tags->next_tag() ) {
+			foreach ( [ 'href', 'src' ] as $attribute ) {
+				if ( $tags->get_attribute( $attribute ) === $from ) {
+					$tags->set_attribute( $attribute, $to );
+					$replaced = true;
+				}
+			}
+		}
+		return $replaced ? $tags->get_updated_html() : $html;
 	}
 
 	/**

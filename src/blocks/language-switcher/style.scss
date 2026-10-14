@@ -1,6 +1,6 @@
 /*
- * Language Switcher: a plain row of links. Colours, spacing and type come
- * from the block settings.
+ * Language Switcher: a row or column of links, or a dropdown.
+ * Colours, spacing and type come from the block settings.
  */
 .wp-block-blocklingo-language-switcher__list {
 	display: flex;
@@ -9,9 +9,82 @@
 	margin: 0;
 	padding: 0;
 	list-style: none;
+
+	&.is-vertical {
+		flex-direction: column;
+	}
 }
 
 .wp-block-blocklingo-language-switcher__item.is-current a {
 	font-weight: 600;
 	text-decoration: none;
+}
+
+.wp-block-blocklingo-language-switcher__dropdown {
+	position: relative;
+
+	.wp-block-blocklingo-language-switcher__list {
+		position: absolute;
+		z-index: 100;
+		top: calc(100% + 0.25em);
+		right: 0;
+		gap: 0.25em;
+		min-width: max-content;
+		padding: 0.5em 0.75em;
+		border: 1px solid color-mix(in srgb, currentcolor 20%, transparent);
+		border-radius: 0.25em;
+		background-color: var(--wp--preset--color--base, #fff);
+		box-shadow: 0 0.25em 1em rgb(0 0 0 / 10%);
+		visibility: hidden;
+		opacity: 0;
+		transform: translateY(-0.25em);
+		transition:
+			opacity 0.15s ease-out,
+			transform 0.15s ease-out,
+			visibility 0.15s;
+	}
+
+	&:hover,
+	&:focus-within {
+
+		.wp-block-blocklingo-language-switcher__list {
+			visibility: visible;
+			opacity: 1;
+			transform: none;
+		}
+
+		.wp-block-blocklingo-language-switcher__toggle::after {
+			transform: translateY(0.2em) rotate(-135deg);
+		}
+	}
+}
+
+.wp-block-blocklingo-language-switcher__toggle {
+	display: flex;
+	gap: 0.35em;
+	align-items: center;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+
+	&::after {
+		width: 0.4em;
+		height: 0.4em;
+		margin-top: -0.2em;
+		border-right: 0.12em solid currentcolor;
+		border-bottom: 0.12em solid currentcolor;
+		transform: rotate(45deg);
+		transition: transform 0.15s ease-out;
+		content: "";
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.wp-block-blocklingo-language-switcher__dropdown * {
+		transition: none;
+	}
 }

@@ -131,4 +131,50 @@ class SeoTest extends Blocklingo_TestCase {
 		$this->assertStringNotContainsString( '/fr/tarifs/', $html );
 		$this->assertStringContainsString( '>NL</a>', $html );
 	}
+
+	public function test_switcher_list_can_be_vertical(): void {
+		// Arrange.
+		$this->visit( '/fr/tarifs/' );
+
+		// Act.
+		$html = Switcher_Block::render( [ 'orientation' => 'vertical' ] );
+
+		// Assert.
+		$this->assertStringContainsString( '<ul class="wp-block-blocklingo-language-switcher__list is-vertical">', $html );
+		$this->assertStringNotContainsString( '__dropdown', $html );
+	}
+
+	public function test_switcher_dropdown_shows_the_current_language_and_opens_the_links(): void {
+		// Arrange.
+		$this->visit( '/fr/tarifs/' );
+
+		// Act.
+		$html = Switcher_Block::render(
+			[
+				'display'     => 'dropdown',
+				'showCurrent' => false,
+			]
+		);
+
+		// Assert.
+		$this->assertStringContainsString( '<div class="wp-block-blocklingo-language-switcher__dropdown"><button type="button" class="wp-block-blocklingo-language-switcher__toggle" lang="fr-FR">Français</button><ul', $html );
+		$this->assertStringContainsString( 'href="' . $this->home() . '/en/tarieven/"', $html );
+		$this->assertStringNotContainsString( '/fr/tarifs/', $html );
+	}
+
+	public function test_switcher_dropdown_with_codes_names_the_current_language(): void {
+		// Arrange.
+		$this->visit( '/fr/tarifs/' );
+
+		// Act.
+		$html = Switcher_Block::render(
+			[
+				'display' => 'dropdown',
+				'label'   => 'code',
+			]
+		);
+
+		// Assert.
+		$this->assertStringContainsString( 'lang="fr-FR" aria-label="Français">FR</button>', $html );
+	}
 }
