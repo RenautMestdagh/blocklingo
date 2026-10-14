@@ -277,15 +277,26 @@ class Settings_Page {
 	}
 
 	/**
-	 * After saving: forget the cached settings and fetch WordPress's own translations for
-	 * new languages, so its texts (dates, "Menu", form messages) appear in them too.
+	 * Whether this request is an administrator saving the Blocklingo settings screen (as
+	 * opposed to the settings changing from code: a switch of the default language, WP-CLI).
+	 */
+	private static function is_settings_form_save(): bool {
+		// options.php has verified the nonce for this option page before saving.
+		$page = isset( $_POST['option_page'] ) ? sanitize_key( wp_unslash( $_POST['option_page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		return is_admin() && self::SLUG === $page;
+	}
+
+	/**
+	 * After saving: forget the cached settings and, when an administrator saved the screen,
+	 * fetch WordPress's own translations for new languages, so its texts (dates, "Menu", form
+	 * messages) appear in them too. Never on other saves: no network requests from code.
 	 *
 	 * @param mixed $old_value Previous value.
 	 * @param mixed $value     New value.
 	 */
 	public static function after_save( $old_value, $value ): void {
 		Languages::flush();
-		if ( ! current_user_can( 'install_languages' ) || ! is_array( $value ) ) {
+		if ( ! self::is_settings_form_save() || ! current_user_can( 'install_languages' ) || ! is_array( $value ) ) {
 			return;
 		}
 		require_once ABSPATH . 'wp-admin/includes/translation-install.php';
