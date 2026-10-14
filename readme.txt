@@ -4,7 +4,7 @@ Tags: multilingual, translation, language switcher, hreflang, block editor
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,13 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 3. Settings → Blocklingo → Strings: the site title, tagline and texts of themes and plugins in every language.
 
 == Changelog ==
+
+= 0.2.0 =
+* Classic themes: menus from Appearance → Menus get a label, title attribute and address per language.
+* Links to categories, tags, archives, search and page 2 of lists follow the language of the page.
+* Theme compatibility section and a guide for theme authors.
+* The editor script is no longer loaded on the widgets screen.
+* Language packs are only downloaded when you save the settings screen, never when settings change from code.
 
 = 0.1.0 =
 * First version: languages, language prefixes, translated slugs, hreflang, Language Switcher block, translating blocks in the editor, strings for themes and plugins, sitemap, Contact Form 7, optional DeepL.
