@@ -4,7 +4,8 @@ Multilingual WordPress, block by block. Write content once in your default langu
 it block by block in the block editor, including templates, headers, footers and menus in the Site
 Editor. Translated URLs, `hreflang`, a language switcher block. Free, GPL, no external service.
 
-User documentation: [readme.txt](readme.txt) (shown on WordPress.org).
+User documentation: [readme.txt](readme.txt) (shown on WordPress.org). For theme authors:
+[docs/themes.md](docs/themes.md), what works automatically and what a theme has to do itself.
 
 > Status: early development. Done: languages, URL prefixes, translated slugs, link localisation,
 > hreflang, Language Switcher block, translating blocks in the editor, strings for themes and
@@ -30,6 +31,7 @@ User documentation: [readme.txt](readme.txt) (shown on WordPress.org).
 | Contact Form 7 (form, messages, auto-reply; language of REST submissions) | `includes/class-contact-form-7.php` |
 | Optional DeepL (REST `blocklingo/v1/translate`, key only on the server) | `includes/class-machine-translation.php` |
 | Changing the default language (swap originals and translations, resumable), `wp blocklingo switch-default` | `includes/class-default-language.php`, `includes/class-cli.php` |
+| Classic menus (Appearance → Menus): label, title attribute and URL per language | `includes/class-menus.php` |
 | Functions for themes and plugins | `includes/functions.php` |
 
 ### How a block is translated

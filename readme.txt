@@ -18,6 +18,7 @@ Blocklingo makes a WordPress site multilingual without duplicating pages. You wr
 
 * **Translate in the block editor**: choose a language in the Translate sidebar and type the translation into the blocks themselves, in the same layout. Blocks still to translate are faded; blocks whose original changed after translating are marked as outdated. The same works in the Site Editor, for headers, footers, templates and menus.
 * **Blocks from any plugin**: every block with text content can be translated, not only WordPress's own.
+* **Classic themes too**: menus from Appearance → Menus get a label and address per language.
 * **Any number of languages**, configured under Settings → Blocklingo. Turn a language off to hide it without losing its translations.
 * **Translated addresses**: every page and post gets its own slug per language (`/fr/tarifs/`, `/en/rates/`), parents included. Links inside your content follow the language of the page.
 * **Language prefixes** in the URL for every language, optionally also for the default one (`/en/` …). Old addresses are redirected permanently.
@@ -47,11 +48,23 @@ Blocklingo makes a WordPress site multilingual without duplicating pages. You wr
 
 Your site needs pretty permalinks (Settings → Permalinks) for language prefixes; with plain permalinks Blocklingo adds `?lang=fr` instead.
 
+== Theme compatibility ==
+
+**Block themes** (Twenty Twenty-Five and most new themes): everything that is made of blocks is translated in the editor and the Site Editor: pages, templates, headers, footers, menus (Navigation block) and patterns.
+
+**Classic themes**: page and post content, titles and addresses are translated in the editor; menus (Appearance → Menus) get a label, title attribute and address per language for every item.
+
+**Any theme**: links to posts, pages, categories, tags and archives follow the language of the page; `<html lang>` and `hreflang` are automatic. The theme's own texts appear in the visitor's language when the theme comes with translation files (most themes do, through translate.wordpress.org). Texts of themes and plugins written for WPML are translated too.
+
+**What a theme can't get automatically**: texts it prints from its own settings (Customizer fields, an options page) without translation files. Themes can register those for Settings → Blocklingo → Strings with two functions; the guide for theme authors is at https://github.com/RenautMestdagh/blocklingo/blob/main/docs/themes.md
+
+**Not supported yet**: widgets in Appearance → Widgets (classic or block widgets). Put translatable content in a template part, a synced pattern or the page itself.
+
 == Frequently Asked Questions ==
 
 = Does it work with my theme? =
 
-Yes, with block themes and classic themes. Translating headers, footers and templates in the Site Editor needs a block theme.
+Most likely, without changes. See Theme compatibility below.
 
 = Can I change the default language later? =
 

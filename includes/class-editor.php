@@ -62,11 +62,24 @@ class Editor {
 	}
 
 	/**
+	 * Whether this is the widgets block editor (Appearance → Widgets, or the Customizer).
+	 * It has no post editor, so the Translate sidebar can't work there, and WordPress warns
+	 * against loading the post editor's scripts (wp-editor) next to it.
+	 */
+	private static function is_widgets_editor(): bool {
+		if ( did_action( 'customize_controls_init' ) ) {
+			return true;
+		}
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		return $screen && 'widgets' === $screen->id;
+	}
+
+	/**
 	 * The script, with its data and translations.
 	 */
 	public static function enqueue_script(): void {
 		$asset = self::asset();
-		if ( ! $asset || ! current_user_can( 'edit_posts' ) ) {
+		if ( ! $asset || ! current_user_can( 'edit_posts' ) || self::is_widgets_editor() ) {
 			return;
 		}
 		wp_enqueue_script( self::HANDLE, plugins_url( 'build/editor/index.js', BLOCKLINGO_FILE ), $asset['dependencies'], $asset['version'], true );
