@@ -1,0 +1,26 @@
+name: blocklingo
+type: wordpress
+# WordPress lives in wordpress/ (not committed); the plugin is linked into it on start.
+docroot: wordpress
+php_version: "8.3"
+webserver_type: nginx-fpm
+xdebug_enabled: false
+additional_hostnames: []
+additional_fqdns: []
+database:
+  type: mysql
+  version: "8.0"
+use_dns_when_possible: true
+composer_version: "2"
+nodejs_version: auto
+corepack_enable: false
+web_environment:
+  - WP_TESTS_DB_HOST=db
+  - WP_TESTS_DB_NAME=db_tests
+  - WP_TESTS_DB_USER=db
+  - WP_TESTS_DB_PASSWORD=db
+hooks:
+  post-start:
+    # Database for PHPUnit (composer test), separate from the development site.
+    - exec: mysql -uroot -proot -hdb -e "CREATE DATABASE IF NOT EXISTS db_tests; GRANT ALL ON db_tests.* TO 'db'@'%';"
+    - exec: .ddev/commands/web/setup-site

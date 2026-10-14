@@ -1,0 +1,53 @@
+name: Release
+
+# Publishing a GitHub release (tag vX.Y.Z) builds the plugin, attaches the zip to the
+# release and, once the plugin is approved on WordPress.org, deploys it there.
+# To deploy: set the repository variable WPORG_DEPLOY to "true" and the secrets
+# SVN_USERNAME and SVN_PASSWORD (WordPress.org account; password = SVN password from
+# https://profiles.wordpress.org/me/profile/edit/group/3/?screen=svn-password).
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Version matches the tag
+        run: node bin/check-version.mjs "${{ github.event.release.tag_name }}"
+
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Zip the plugin as it ships
+        run: |
+          rsync -a --exclude-from=.distignore ./ /tmp/blocklingo/
+          cd /tmp && zip -qr "$GITHUB_WORKSPACE/blocklingo.zip" blocklingo
+
+      - name: Attach the zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" blocklingo.zip --clobber
+
+      - name: Deploy to WordPress.org
+        if: ${{ vars.WPORG_DEPLOY == 'true' }}
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: blocklingo
+          ASSETS_DIR: .wordpress-org

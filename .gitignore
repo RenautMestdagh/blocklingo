@@ -1,0 +1,8 @@
+/vendor/
+/node_modules/
+/build/
+/wordpress/
+/.phpunit.result.cache
+/.phpunit.cache/
+/*.zip
+.DS_Store

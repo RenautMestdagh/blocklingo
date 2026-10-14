@@ -1,0 +1,38 @@
+{
+	"name": "renautmestdagh/blocklingo",
+	"description": "Multilingual WordPress, block by block: translate content, templates and menus in the block editor, with translated URLs and hreflang.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "Renaut Mestdagh",
+			"homepage": "https://github.com/RenautMestdagh"
+		}
+	],
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpunit/phpunit": "^9.6",
+		"roots/wordpress-full": ">=6.8",
+		"wp-coding-standards/wpcs": "^3.1",
+		"wp-phpunit/wp-phpunit": ">=6.8",
+		"yoast/phpunit-polyfills": "^4.0"
+	},
+	"scripts": {
+		"lint": "phpcs",
+		"fix": "phpcbf",
+		"test": "phpunit"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"platform": {
+			"php": "7.4.33"
+		},
+		"sort-packages": true
+	}
+}

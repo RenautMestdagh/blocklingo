@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+## Description: Installs the development WordPress (if needed) with Blocklingo active and three languages.
+## Usage: setup-site
+## Example: "ddev setup-site"
+
+set -euo pipefail
+cd /var/www/html
+
+if [ ! -f wordpress/wp-includes/version.php ]; then
+	wp core download --path=wordpress --skip-content --quiet
+fi
+mkdir -p wordpress/wp-content/plugins wordpress/wp-content/themes
+ln -sfn /var/www/html wordpress/wp-content/plugins/blocklingo
+
+if ! wp core is-installed --path=wordpress 2>/dev/null; then
+	wp core install --path=wordpress --url="$DDEV_PRIMARY_URL" --title="Blocklingo" \
+		--admin_user=admin --admin_password=admin --admin_email=admin@example.com --skip-email --quiet
+	wp theme install twentytwentyfive --activate --path=wordpress --quiet
+	wp rewrite structure '/%postname%/' --path=wordpress --quiet
+	wp plugin activate blocklingo --path=wordpress --quiet
+	wp option update blocklingo_settings --format=json --path=wordpress \
+		'{"languages":[{"code":"en","name":"English","locale":"en_US","slug":"en","enabled":true},{"code":"nl","name":"Nederlands","locale":"nl_NL","slug":"nl","enabled":true},{"code":"fr","name":"Français","locale":"fr_FR","slug":"fr","enabled":true}],"default":"en","prefix_default":false,"post_types":["page","post"]}'
+	echo "WordPress installed: $DDEV_PRIMARY_URL/wp-admin/ (admin / admin)"
+fi

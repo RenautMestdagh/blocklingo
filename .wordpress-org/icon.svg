@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0" stop-color="#4338ca"/>
+			<stop offset="1" stop-color="#7c3aed"/>
+		</linearGradient>
+	</defs>
+	<rect width="256" height="256" rx="56" fill="url(#bg)"/>
+	<!-- The block in another language, behind -->
+	<rect x="100" y="44" width="112" height="104" rx="20" fill="#ffffff" fill-opacity="0.28"/>
+	<rect x="170" y="70" width="22" height="12" rx="6" fill="#ffffff"/>
+	<rect x="174" y="94" width="18" height="12" rx="6" fill="#ffffff" fill-opacity="0.75"/>
+	<!-- The block, in front -->
+	<rect x="44" y="96" width="120" height="112" rx="20" fill="#ffffff"/>
+	<rect x="66" y="122" width="76" height="14" rx="7" fill="#4338ca"/>
+	<rect x="66" y="148" width="58" height="14" rx="7" fill="#c4b5fd"/>
+	<rect x="66" y="174" width="68" height="14" rx="7" fill="#c4b5fd"/>
+	<!-- Arrow from one to the other -->
+	<path d="M186 166 C 196 196, 186 214, 162 222" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round"/>
+	<path d="M170 206 L 158 224 L 180 230" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

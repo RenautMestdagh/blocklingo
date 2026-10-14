@@ -1,0 +1,62 @@
+name: Format
+
+# Fixes what the code style tools can fix by themselves and commits the result to main.
+on:
+  push:
+    branches: [ main ]
+    paths: [ '**.php', 'phpcs.xml.dist', 'src/**', 'assets/**', '.editorconfig', 'package.json', 'package-lock.json' ]
+
+concurrency:
+  group: format-${{ github.ref_name }}
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Detect changed files
+        id: changes
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            php:
+              - '**.php'
+              - 'phpcs.xml.dist'
+            frontend:
+              - 'src/**'
+              - 'assets/**'
+              - '.editorconfig'
+              - 'package.json'
+              - 'package-lock.json'
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.changes.outputs.php == 'true'
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+      - uses: ramsey/composer-install@v3
+        if: steps.changes.outputs.php == 'true'
+      # phpcbf exits 1 when it fixed something: that is the point here.
+      - run: composer fix || [ $? -eq 1 ]
+        if: steps.changes.outputs.php == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.frontend == 'true'
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+      - run: npm ci
+        if: steps.changes.outputs.frontend == 'true'
+      - run: npm run format
+        if: steps.changes.outputs.frontend == 'true'
+
+      - uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: 'style: apply phpcbf and prettier [skip ci]'
+          file_pattern: '*.php src assets'
