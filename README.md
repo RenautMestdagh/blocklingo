@@ -45,7 +45,10 @@ stored original is swapped for the translation in the block's own markup, as the
 element or as a text attribute (`alt`, `title`…), or in its comment attributes for blocks rendered
 on the server. When the original has changed since, nothing matches and the current original shows,
 while the editor marks the block as outdated. Translatable attributes are found from block types:
-attributes with `role: "content"` holding text, so blocks from other plugins work too.
+attributes with `role: "content"` holding text, so blocks from other plugins work too. Text in lists
+(`source: "query"`, like a table's rows) is translated per item, under its path
+(`body.0.cells.1.content`). Links (`url`, `href` and a few like them) are translated the same way,
+but kept as a cleaned URL and never counted as untranslated.
 
 ## Development
 
