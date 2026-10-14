@@ -68,6 +68,21 @@ GitHub Actions run on every push and pull request: **Lint** (PHPCS, PHP syntax 7
 Stylelint, JS unit tests, build), **Tests** (PHPUnit on every PHP version from 7.4 to 8.5 against WordPress 6.6, 6.9 and the latest), **Plugin Check**
 (the checks WordPress.org runs) and, on `main`, **Format** (fixes style and commits it).
 
+## Releasing
+
+1. Set the new version in `blocklingo.php` (header and `BLOCKLINGO_VERSION`), `readme.txt` (Stable tag),
+   `package.json` and `src/blocks/language-switcher/block.json`; `npm run check:version` checks they agree.
+   Add the changelog entry to `readme.txt`.
+2. Merge to `main`, then publish a GitHub release with tag `vX.Y.Z`. The **Release** workflow checks the
+   version against the tag, builds, attaches `blocklingo.zip` to the release and, once set up, deploys to
+   WordPress.org.
+
+**WordPress.org, once:** submit the zip from the first release at
+<https://wordpress.org/plugins/developers/add/> (needs a WordPress.org account). After approval, set the
+repository secrets `SVN_USERNAME` and `SVN_PASSWORD` (the SVN password from your WordPress.org profile)
+and the variable `WPORG_DEPLOY` to `true`. From then on releases deploy themselves, and changes to
+`readme.txt` or `.wordpress-org/` (banner, icon, screenshots) on `main` are pushed to the directory page.
+
 ## License
 
 GPL-2.0-or-later.

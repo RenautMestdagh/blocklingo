@@ -47,6 +47,8 @@ jobs:
           node-version-file: '.nvmrc'
           cache: npm
       - run: npm ci
+      - name: Version the same everywhere
+        run: npm run check:version
       - run: npm run lint:js
       - run: npm run lint:css
         if: ${{ !cancelled() }}

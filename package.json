@@ -15,11 +15,12 @@
 		"build": "wp-scripts build --webpack-src-dir=src --output-path=build",
 		"start": "wp-scripts start --webpack-src-dir=src --output-path=build",
 		"lint": "npm run lint:js && npm run lint:css",
-		"lint:js": "wp-scripts lint-js src assets webpack.config.js",
+		"lint:js": "wp-scripts lint-js src assets bin webpack.config.js",
 		"lint:css": "wp-scripts lint-style \"src/**/*.scss\" \"assets/**/*.css\"",
 		"format": "wp-scripts format src assets",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"test": "wp-scripts test-unit-js"
+		"test": "wp-scripts test-unit-js",
+		"check:version": "node bin/check-version.mjs"
 	},
 	"devDependencies": {
 		"@wordpress/api-fetch": "^7.57.0",

@@ -25,3 +25,5 @@
 /*.zip
 /webpack.config.js
 /vitest.config.mjs
+/bin
+/.wordpress-org
