@@ -50,5 +50,8 @@ jobs:
       - run: npm run lint:js
       - run: npm run lint:css
         if: ${{ !cancelled() }}
+      - name: Unit tests (Vitest)
+        run: npm test
+        if: ${{ !cancelled() }}
       - run: npm run build
         if: ${{ !cancelled() }}

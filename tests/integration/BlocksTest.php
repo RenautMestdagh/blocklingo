@@ -165,6 +165,26 @@ class BlocksTest extends Blocklingo_TestCase {
 		$this->assertStringContainsString( '>Contactez-moi</p>', $html );
 	}
 
+	public function test_block_in_a_template_part_is_translated(): void {
+		// Arrange: a header template part, as saved in the Site Editor.
+		$part = self::factory()->post->create(
+			[
+				'post_type'    => 'wp_template_part',
+				'post_name'    => 'blocklingo-header',
+				'post_status'  => 'publish',
+				'post_content' => $this->block( 'paragraph', [ 'blocklingo' => [ 'fr' => [ 'content' => [ 'Welkom', 'Bienvenue' ] ] ] ], '<p>Welkom</p>' ),
+			]
+		);
+		wp_set_post_terms( $part, get_stylesheet(), 'wp_theme' );
+		$this->visit( '/fr/' );
+
+		// Act.
+		$html = do_blocks( '<!-- wp:template-part {"slug":"blocklingo-header","theme":"' . get_stylesheet() . '"} /-->' );
+
+		// Assert.
+		$this->assertStringContainsString( '>Bienvenue</p>', $html );
+	}
+
 	public function test_malformed_translations_are_ignored(): void {
 		// Arrange.
 		$parsed = [

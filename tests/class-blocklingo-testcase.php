@@ -7,6 +7,7 @@
 
 use Blocklingo\Languages;
 use Blocklingo\Links;
+use Blocklingo\Posts;
 use Blocklingo\Request;
 
 /**
@@ -22,6 +23,8 @@ abstract class Blocklingo_TestCase extends WP_UnitTestCase {
 		$this->set_permalink_structure( '/%postname%/' );
 		$this->set_languages();
 		Request::detect();
+		// The test suite resets post types between tests, and with them their meta fields.
+		Posts::register_meta();
 	}
 
 	/**

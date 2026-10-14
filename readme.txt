@@ -24,12 +24,15 @@ Blocklingo makes a WordPress site multilingual without duplicating pages. You wr
 * **Language Switcher block** for your header or footer, linking to the same page in the other languages.
 * **No lock-in**: translations are stored with the blocks they belong to. Remove the plugin and your site is your original content again.
 
-Blocklingo is under active development. Translating blocks in the editor arrives in the next versions; this version brings languages, translated addresses and the language switcher.
+* **Translate in the block editor**: choose a language in the Translate sidebar and type the translation into the blocks themselves, with the same layout. Blocks still to translate are faded; blocks whose original changed after translating are marked as outdated. Works in the Site Editor too, for headers, footers, templates and menus.
+* **Blocks from any plugin**: every block with text content can be translated, not only WordPress's own.
+
+Blocklingo is under active development.
 
 = For developers =
 
 * `blocklingo_current_language()`, `blocklingo_default_language()`, `blocklingo_languages()`, `blocklingo_current_url( $code )`, `blocklingo_localize_url( $url, $code )`.
-* Filters: `blocklingo_post_types`, `blocklingo_print_hreflang`.
+* Filters: `blocklingo_post_types`, `blocklingo_print_hreflang`, `blocklingo_text_attributes`.
 * Development happens on [GitHub](https://github.com/RenautMestdagh/blocklingo).
 
 == Installation ==
@@ -37,7 +40,7 @@ Blocklingo is under active development. Translating blocks in the editor arrives
 1. Install and activate Blocklingo.
 2. Go to Settings → Blocklingo, add your languages and choose the default one: the language your content is written in.
 3. Add the Language Switcher block to your header (Appearance → Editor).
-4. Open a page and set its translated title and address in the sidebar.
+4. Open a page, open the Translate sidebar (the translation icon at the top), choose a language and type the translations into the blocks. Set the translated title and address in the same sidebar.
 
 Your site needs pretty permalinks (Settings → Permalinks) for language prefixes; with plain permalinks Blocklingo adds `?lang=fr` instead.
 
@@ -58,4 +61,4 @@ No. Blocklingo works entirely within your site. When you save a new language, Wo
 == Changelog ==
 
 = 0.1.0 =
-* First version: languages, language prefixes, translated slugs, hreflang, Language Switcher block.
+* First version: languages, language prefixes, translated slugs, hreflang, Language Switcher block, translating blocks in the editor.
