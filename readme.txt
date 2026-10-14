@@ -14,25 +14,21 @@ Multilingual WordPress, block by block: translate pages, templates, headers, foo
 
 Blocklingo makes a WordPress site multilingual without duplicating pages. You write content once, in your default language, and translate it block by block, right where it is, in the block editor.
 
-**Free, completely.** No Pro version, no limit on languages, no account, no external service.
+**Free, completely.** No Pro version, no limit on languages, no account, no external service needed.
 
+* **Translate in the block editor**: choose a language in the Translate sidebar and type the translation into the blocks themselves, in the same layout. Blocks still to translate are faded; blocks whose original changed after translating are marked as outdated. The same works in the Site Editor, for headers, footers, templates and menus.
+* **Blocks from any plugin**: every block with text content can be translated, not only WordPress's own.
 * **Any number of languages**, configured under Settings → Blocklingo. Turn a language off to hide it without losing its translations.
 * **Translated addresses**: every page and post gets its own slug per language (`/fr/tarifs/`, `/en/rates/`), parents included. Links inside your content follow the language of the page.
 * **Language prefixes** in the URL for every language, optionally also for the default one (`/en/` …). Old addresses are redirected permanently.
-* **Search engines**: `hreflang` links for every language plus `x-default`, and the right `lang` on the page.
+* **Search engines**: `hreflang` links for every language plus `x-default`, the right `lang` on the page, and every translated address in WordPress's own sitemap.
 * **WordPress itself in the visitor's language**: its own texts (dates, buttons, form messages) follow the language of the page; translations are installed when you add a language.
 * **Language Switcher block** for your header or footer, linking to the same page in the other languages.
-* **No lock-in**: translations are stored with the blocks they belong to. Remove the plugin and your site is your original content again.
-
-* **Translate in the block editor**: choose a language in the Translate sidebar and type the translation into the blocks themselves, with the same layout. Blocks still to translate are faded; blocks whose original changed after translating are marked as outdated. Works in the Site Editor too, for headers, footers, templates and menus.
-* **Blocks from any plugin**: every block with text content can be translated, not only WordPress's own.
 * **Texts outside blocks**: the site title, the tagline and texts of themes and plugins that support Blocklingo (or WPML's string functions) are translated under Settings → Blocklingo → Strings.
 * **Contact Form 7**: labels, placeholders, messages and the auto-reply in every language; messages after sending come back in the language of the page.
-* **Sitemap**: every translated address is added to WordPress's own sitemap.
 * **Optional machine translation**: with your own DeepL API key, fill in all untranslated blocks of a page with one click, then check and adjust.
 * **Change the default language later**: translations become the content and the content becomes a translation, with a dry run first and WP-CLI for large sites.
-
-Blocklingo is under active development.
+* **No lock-in**: translations are stored with the blocks they belong to. Remove the plugin and your site is your original content again.
 
 = For developers =
 
@@ -40,7 +36,7 @@ Blocklingo is under active development.
 * `blocklingo_register_string( $text, $group, $label, $multiline )` and `blocklingo_translate( $text, $group )` for texts outside blocks.
 * WPML's hooks (`wpml_translate_single_string`, `wpml_register_single_string`, `wpml_current_language`, `wpml_active_languages`…) are answered when WPML is not active.
 * Filters: `blocklingo_post_types`, `blocklingo_print_hreflang`, `blocklingo_text_attributes`, `blocklingo_strings`, `blocklingo_wpml_compat`.
-* Development happens on [GitHub](https://github.com/RenautMestdagh/blocklingo).
+* Development happens on [GitHub](https://github.com/RenautMestdagh/blocklingo). The editor scripts in `build/` are compiled from the readable source in `src/` there (`npm run build`).
 
 == Installation ==
 
@@ -80,6 +76,12 @@ Blocklingo can use **DeepL** (https://www.deepl.com) to translate texts, only wh
 * Where: api-free.deepl.com (free keys) or api.deepl.com (paid keys).
 
 DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www.deepl.com/privacy
+
+== Screenshots ==
+
+1. Translating in the block editor: the same page and layout in French, a block still to translate faded, progress, and the French title and address.
+2. Settings → Blocklingo: languages, their URL prefixes and WordPress languages, addresses and optional machine translation.
+3. Settings → Blocklingo → Strings: the site title, tagline and texts of themes and plugins in every language.
 
 == Changelog ==
 

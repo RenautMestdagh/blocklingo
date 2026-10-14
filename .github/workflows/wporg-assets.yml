@@ -1,0 +1,25 @@
+name: WordPress.org readme and assets
+
+# Keeps readme.txt and the directory's banner, icon and screenshots up to date on
+# WordPress.org between releases (only once deploying is set up, see release.yml).
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'readme.txt', '.wordpress-org/**' ]
+
+jobs:
+  assets:
+    if: ${{ vars.WPORG_DEPLOY == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Update readme and assets
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: blocklingo
+          ASSETS_DIR: .wordpress-org
+          IGNORE_OTHER_FILES: true

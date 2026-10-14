@@ -21,3 +21,5 @@
 /README.md export-ignore
 /webpack.config.js export-ignore
 /vitest.config.mjs export-ignore
+/bin export-ignore
+/.wordpress-org export-ignore
