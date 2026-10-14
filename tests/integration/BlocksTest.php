@@ -219,4 +219,32 @@ class BlocksTest extends Blocklingo_TestCase {
 		// Assert.
 		$this->assertSame( [ 'content' => [ 'Hallo', 'Bonjour' ] ], $pairs );
 	}
+
+	public function test_table_cells_are_translated_one_by_one(): void {
+		// Arrange.
+		$this->visit( '/fr/' );
+		$pairs   = [
+			'head.0.cells.0.content' => [ 'Zorg', 'Soin' ],
+			'body.0.cells.0.content' => [ 'Evaluatiezitting', 'Séance d’évaluation' ],
+		];
+		$content = $this->block( 'table', [ 'blocklingo' => [ 'fr' => $pairs ] ], '<figure class="wp-block-table"><table><thead><tr><th>Zorg</th><th>Prijs</th></tr></thead><tbody><tr><td>Evaluatiezitting</td><td>€ 76,73</td></tr></tbody></table></figure>' );
+
+		// Act.
+		$html = do_blocks( $content );
+
+		// Assert.
+		$this->assertStringContainsString( '<th>Soin</th><th>Prijs</th>', $html );
+		$this->assertStringContainsString( '<td>Séance d’évaluation</td><td>€ 76,73</td>', $html );
+	}
+
+	public function test_lists_with_text_in_their_items_are_translatable(): void {
+		// Arrange.
+		$block_name = 'core/table';
+
+		// Act.
+		$names = Blocks::translatable_attributes( $block_name );
+
+		// Assert.
+		$this->assertEqualsCanonicalizing( [ 'caption', 'head', 'body', 'foot' ], $names );
+	}
 }

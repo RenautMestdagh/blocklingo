@@ -16,20 +16,22 @@ import { STORE_NAME } from './store';
 import {
 	acceptOutdated,
 	getBlockStatus,
-	getTranslatableAttributes,
+	getTextPaths,
 	getTranslatedAttributes,
+	getValue,
+	setValue,
 	splitUpdates,
 } from './translations';
 
 /**
- * Translatable attributes of a block type, cached per name.
+ * Where a block holds text to translate (see getTextPaths).
+ *
+ * @param {string} name       Block name.
+ * @param {Object} attributes Block attributes.
+ * @return {string[]} Paths.
  */
-const cache = new Map();
-export function translatableAttributesOf( name ) {
-	if ( ! cache.has( name ) ) {
-		cache.set( name, getTranslatableAttributes( getBlockType( name ) ) );
-	}
-	return cache.get( name );
+export function textPathsOf( name, attributes ) {
+	return getTextPaths( getBlockType( name ), attributes );
 }
 
 /**
@@ -65,7 +67,10 @@ export const withTranslation = createHigherOrderComponent(
 		function BlocklingoBlockEdit( props ) {
 			const language = useTranslationLanguage();
 			const { name, attributes, setAttributes } = props;
-			const names = translatableAttributesOf( name );
+			const names = useMemo(
+				() => textPathsOf( name, attributes ),
+				[ name, attributes ]
+			);
 			const active = !! language && names.length > 0;
 
 			const shown = useMemo( () => {
@@ -77,13 +82,18 @@ export const withTranslation = createHigherOrderComponent(
 					language,
 					names
 				);
-				names.forEach( ( key ) => {
-					translated[ key ] = asOriginalType(
-						attributes[ key ],
-						translated[ key ]
-					);
-				} );
-				return translated;
+				return names.reduce(
+					( typed, path ) =>
+						setValue(
+							typed,
+							path,
+							asOriginalType(
+								getValue( attributes, path ),
+								getValue( translated, path )
+							)
+						),
+					translated
+				);
 			}, [ active, attributes, language, names ] );
 
 			const setShown = useCallback(
@@ -150,7 +160,7 @@ export const withTranslationStatus = createHigherOrderComponent(
 	( BlockListBlock ) =>
 		function BlocklingoBlockListBlock( props ) {
 			const language = useTranslationLanguage();
-			const names = translatableAttributesOf( props.name );
+			const names = textPathsOf( props.name, props.attributes );
 			if ( ! language || ! names.length ) {
 				return <BlockListBlock { ...props } />;
 			}

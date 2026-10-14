@@ -55,8 +55,10 @@ class Blocks {
 
 	/**
 	 * Attributes of a block type that hold text to translate: content attributes (role
-	 * "content") that are strings or rich text. The same rule as the editor uses
-	 * (src/editor/translations.js).
+	 * "content") that are strings or rich text, and lists (source "query", like table rows)
+	 * with such text in their items. The same rule as the editor uses
+	 * (src/editor/translations.js), where each text in a list is translated on its own,
+	 * under its path: `body.0.cells.1.content`.
 	 *
 	 * @param string $block_name Block name.
 	 * @return string[]
@@ -68,13 +70,31 @@ class Blocks {
 		}
 		$names = [];
 		foreach ( $type->attributes as $name => $attribute ) {
-			$role    = $attribute['role'] ?? ( $attribute['__experimentalRole'] ?? '' );
-			$is_text = in_array( $attribute['type'] ?? '', [ 'string', 'rich-text' ], true ) || in_array( $attribute['source'] ?? '', [ 'html', 'rich-text', 'text' ], true );
-			if ( 'content' === $role && $is_text && ! in_array( $name, [ 'url', 'href', 'src', 'id', 'ref', 'linkTarget', 'rel', 'linkClass', 'anchor' ], true ) ) {
+			if ( self::holds_text( (string) $name, (array) $attribute ) ) {
 				$names[] = (string) $name;
 			}
 		}
 		return $names;
+	}
+
+	/**
+	 * Whether an attribute definition holds text, itself or in its list items.
+	 *
+	 * @param string $name      Attribute name.
+	 * @param array  $attribute Attribute definition.
+	 */
+	private static function holds_text( string $name, array $attribute ): bool {
+		if ( 'query' === ( $attribute['source'] ?? '' ) ) {
+			foreach ( (array) ( $attribute['query'] ?? [] ) as $item_name => $item ) {
+				if ( self::holds_text( (string) $item_name, (array) $item ) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+		$role    = $attribute['role'] ?? ( $attribute['__experimentalRole'] ?? '' );
+		$is_text = in_array( $attribute['type'] ?? '', [ 'string', 'rich-text' ], true ) || in_array( $attribute['source'] ?? '', [ 'html', 'rich-text', 'text' ], true );
+		return 'content' === $role && $is_text && ! in_array( $name, [ 'url', 'href', 'src', 'id', 'ref', 'linkTarget', 'rel', 'linkClass', 'anchor' ], true );
 	}
 
 	/**

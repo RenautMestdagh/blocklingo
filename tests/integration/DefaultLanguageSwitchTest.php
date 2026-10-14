@@ -329,4 +329,27 @@ class DefaultLanguageSwitchTest extends Blocklingo_TestCase {
 		$this->assertSame( 'nl', Languages::default_code() );
 		unset( $_POST['to'], $_REQUEST['_wpnonce'] );
 	}
+
+	public function test_the_same_text_twice_in_a_block_is_swapped_once_for_both(): void {
+		// Arrange.
+		$pairs = [
+			'body.0.cells.0.content' => [ 'Ja', 'Oui' ],
+			'body.1.cells.0.content' => [ 'Ja', 'Oui' ],
+		];
+		$block = parse_blocks( $this->block( 'table', [ 'blocklingo' => [ 'fr' => $pairs ] ], '<figure class="wp-block-table"><table><tbody><tr><td>Ja</td></tr><tr><td>Ja</td></tr></tbody></table></figure>' ) )[0];
+		$stats = [
+			'swapped'      => 0,
+			'untranslated' => 0,
+			'outdated'     => 0,
+		];
+
+		// Act.
+		$switched = Default_Language::switch_block( $block, 'nl', 'fr', $stats );
+
+		// Assert.
+		$this->assertStringContainsString( '<tr><td>Oui</td></tr><tr><td>Oui</td></tr>', $switched['innerHTML'] );
+		$this->assertSame( 2, $stats['swapped'] );
+		$this->assertSame( 0, $stats['outdated'] );
+		$this->assertSame( [ 'Oui', 'Ja' ], $switched['attrs']['blocklingo']['nl']['body.1.cells.0.content'] );
+	}
 }

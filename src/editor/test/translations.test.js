@@ -8,12 +8,41 @@ import {
 	collectMissing,
 	getBlockStatus,
 	getPair,
+	getTextPaths,
 	getTranslatableAttributes,
 	getTranslatedAttributes,
+	getValue,
 	setTranslation,
+	setValue,
 	splitUpdates,
 	toText,
 } from '../translations';
+
+/** A table block type as WordPress registers it: cells in rows, as nested lists. */
+const tableType = {
+	attributes: {
+		caption: { type: 'rich-text', source: 'rich-text', role: 'content' },
+		body: {
+			type: 'array',
+			source: 'query',
+			query: {
+				cells: {
+					type: 'array',
+					source: 'query',
+					query: {
+						content: {
+							type: 'rich-text',
+							source: 'rich-text',
+							role: 'content',
+						},
+						align: { type: 'string', source: 'attribute' },
+					},
+				},
+			},
+		},
+		hasFixedLayout: { type: 'boolean' },
+	},
+};
 
 describe( 'getTranslatableAttributes', () => {
 	it( 'picks content attributes holding text', () => {
@@ -49,6 +78,62 @@ describe( 'getTranslatableAttributes', () => {
 
 		// Assert.
 		expect( names ).toEqual( [] );
+	} );
+} );
+
+describe( 'getTextPaths', () => {
+	it( 'lists every text in a list attribute by its path', () => {
+		// Arrange.
+		const attributes = {
+			caption: 'Tarieven',
+			body: [
+				{ cells: [ { content: 'Zorg' }, { content: '€ 7,50' } ] },
+				{ cells: [ { content: 'Bilan' } ] },
+			],
+		};
+
+		// Act.
+		const paths = getTextPaths( tableType, attributes );
+
+		// Assert.
+		expect( paths ).toEqual( [
+			'caption',
+			'body.0.cells.0.content',
+			'body.0.cells.1.content',
+			'body.1.cells.0.content',
+		] );
+	} );
+
+	it( 'has no paths for an empty list', () => {
+		// Arrange.
+		const attributes = { caption: '', body: [] };
+
+		// Act.
+		const paths = getTextPaths( tableType, attributes );
+
+		// Assert.
+		expect( paths ).toEqual( [ 'caption' ] );
+	} );
+} );
+
+describe( 'setValue', () => {
+	it( 'replaces a nested value and leaves the original alone', () => {
+		// Arrange.
+		const attributes = { body: [ { cells: [ { content: 'Zorg' } ] } ] };
+
+		// Act.
+		const changed = setValue(
+			attributes,
+			'body.0.cells.0.content',
+			'Soin'
+		);
+
+		// Assert.
+		expect( getValue( changed, 'body.0.cells.0.content' ) ).toBe( 'Soin' );
+		expect( Array.isArray( changed.body[ 0 ].cells ) ).toBe( true );
+		expect( getValue( attributes, 'body.0.cells.0.content' ) ).toBe(
+			'Zorg'
+		);
 	} );
 } );
 
@@ -147,6 +232,17 @@ describe( 'getBlockStatus', () => {
 		expect( status ).toBeNull();
 	} );
 
+	it( 'needs no translation for text without words', () => {
+		// Arrange.
+		const attributes = { content: '<strong>€ 7,50</strong>' };
+
+		// Act.
+		const status = getBlockStatus( attributes, 'fr', [ 'content' ] );
+
+		// Assert.
+		expect( status ).toBe( 'translated' );
+	} );
+
 	it( 'reports the worst attribute', () => {
 		// Arrange.
 		const attributes = {
@@ -185,6 +281,32 @@ describe( 'getTranslatedAttributes', () => {
 			caption: 'Bijschrift',
 			align: 'wide',
 		} );
+	} );
+} );
+
+describe( 'getTranslatedAttributes with lists', () => {
+	it( 'shows translated cells in a copy of the rows', () => {
+		// Arrange.
+		const attributes = {
+			body: [ { cells: [ { content: 'Zorg' }, { content: 'Prijs' } ] } ],
+			blocklingo: {
+				fr: { 'body.0.cells.0.content': [ 'Zorg', 'Soin' ] },
+			},
+		};
+
+		// Act.
+		const shown = getTranslatedAttributes(
+			attributes,
+			'fr',
+			getTextPaths( tableType, attributes )
+		);
+
+		// Assert.
+		expect( shown.body[ 0 ].cells ).toEqual( [
+			{ content: 'Soin' },
+			{ content: 'Prijs' },
+		] );
+		expect( attributes.body[ 0 ].cells[ 0 ].content ).toBe( 'Zorg' );
 	} );
 } );
 
@@ -302,6 +424,61 @@ describe( 'splitUpdates', () => {
 
 		// Assert.
 		expect( result ).toEqual( { align: 'center' } );
+	} );
+} );
+
+describe( 'splitUpdates with lists', () => {
+	const attributes = {
+		body: [
+			{
+				cells: [
+					{ content: 'Zorg', align: 'left' },
+					{ content: 'Prijs', align: 'left' },
+				],
+			},
+		],
+		blocklingo: { fr: { 'body.0.cells.1.content': [ 'Prijs', 'Prix' ] } },
+	};
+	const names = getTextPaths( tableType, attributes );
+
+	it( 'makes a typed cell a translation and keeps the original rows', () => {
+		// Arrange.
+		const updates = {
+			body: [
+				{
+					cells: [
+						{ content: 'Soin', align: 'center' },
+						{ content: 'Prix', align: 'left' },
+					],
+				},
+			],
+		};
+
+		// Act.
+		const result = splitUpdates( attributes, updates, 'fr', names );
+
+		// Assert.
+		expect( result.blocklingo.fr ).toEqual( {
+			'body.0.cells.0.content': [ 'Zorg', 'Soin' ],
+			'body.0.cells.1.content': [ 'Prijs', 'Prix' ],
+		} );
+		expect( result.body[ 0 ].cells ).toEqual( [
+			{ content: 'Zorg', align: 'center' },
+			{ content: 'Prijs', align: 'left' },
+		] );
+	} );
+
+	it( 'ignores adding a row while translating', () => {
+		// Arrange.
+		const updates = {
+			body: [ ...attributes.body, { cells: [ { content: '' } ] } ],
+		};
+
+		// Act.
+		const result = splitUpdates( attributes, updates, 'fr', names );
+
+		// Assert.
+		expect( result ).toEqual( {} );
 	} );
 } );
 

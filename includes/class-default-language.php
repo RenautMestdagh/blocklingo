@@ -62,8 +62,13 @@ class Default_Language {
 			++$stats['untranslated'];
 		}
 
+		// Originals already swapped in the markup, with their translation: the same text
+		// twice in a block (two table cells) is replaced everywhere by its first pair.
+		$done = [];
 		foreach ( $pairs as $name => [ $original, $translation ] ) {
-			if ( isset( $block['attrs'][ $name ] ) ) {
+			if ( isset( $done[ $original ] ) ) {
+				$swapped = $done[ $original ] === $translation;
+			} elseif ( isset( $block['attrs'][ $name ] ) ) {
 				$swapped = $block['attrs'][ $name ] === $original;
 				if ( $swapped ) {
 					$block['attrs'][ $name ] = $translation;
@@ -73,6 +78,7 @@ class Default_Language {
 				$new     = Blocks::replace_value( $html, $original, $translation );
 				$swapped = $new !== $html;
 				if ( $swapped ) {
+					$done[ $original ]  = $translation;
 					$block['innerHTML'] = $new;
 					foreach ( (array) ( $block['innerContent'] ?? [] ) as $index => $chunk ) {
 						if ( is_string( $chunk ) ) {
