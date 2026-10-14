@@ -164,7 +164,10 @@ class Strings {
 	 */
 	public static function translate( string $original, string $group = 'default', ?string $code = null ): string {
 		$code = $code ?? Links::lang();
-		if ( '' === $original || Languages::is_default( $code ) || ! Languages::is_enabled( $code ) ) {
+		// The default language can have translations too: a theme's texts are in the
+		// language they were written in, which isn't always the site's default (for example
+		// after switching the default language).
+		if ( '' === $original || ! Languages::is_enabled( $code ) ) {
 			return $original;
 		}
 		$pair = self::pair( $original, $group, $code );
@@ -172,7 +175,7 @@ class Strings {
 	}
 
 	/**
-	 * Cleans submitted translations: only enabled languages other than the default, texts
+	 * Cleans submitted translations: only configured languages, texts
 	 * keyed by the md5 of their original, the same markup rules as posts.
 	 *
 	 * @param mixed $input Submitted value: { lang: { group: { md5: [ original, translation ] } } }.
@@ -182,7 +185,7 @@ class Strings {
 		$clean = [];
 		foreach ( (array) $input as $code => $groups ) {
 			$code = (string) $code;
-			if ( ! Languages::get( $code ) || Languages::is_default( $code ) || ! is_array( $groups ) ) {
+			if ( ! Languages::get( $code ) || ! is_array( $groups ) ) {
 				continue;
 			}
 			foreach ( $groups as $group => $texts ) {

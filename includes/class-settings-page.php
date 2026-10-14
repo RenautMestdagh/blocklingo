@@ -26,6 +26,99 @@ class Settings_Page {
 		add_action( 'update_option_' . Languages::OPTION, [ __CLASS__, 'after_save' ], 10, 2 );
 		add_action( 'add_option_' . Languages::OPTION, [ __CLASS__, 'after_add' ], 10, 2 );
 		add_filter( 'plugin_action_links_' . plugin_basename( BLOCKLINGO_FILE ), [ __CLASS__, 'action_links' ] );
+		add_action( 'admin_post_blocklingo_switch_default', [ __CLASS__, 'handle_switch' ] );
+	}
+
+	/**
+	 * Key of the stored result of a switch, per user.
+	 */
+	private static function result_key(): string {
+		return 'blocklingo_switch_result_' . get_current_user_id();
+	}
+
+	/**
+	 * Handles "Change the default language" (dry run or real), then returns to the screen.
+	 */
+	public static function handle_switch(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to do this.', 'blocklingo' ), '', [ 'response' => 403 ] );
+		}
+		check_admin_referer( 'blocklingo_switch_default' );
+
+		$to      = Languages::sanitize_code( isset( $_POST['to'] ) ? sanitize_text_field( wp_unslash( $_POST['to'] ) ) : '' );
+		$dry_run = ! empty( $_POST['dry_run'] );
+		if ( ! $dry_run && empty( $_POST['backup'] ) ) {
+			$message = __( 'Confirm that you have a backup of the database first.', 'blocklingo' );
+			$type    = 'error';
+		} else {
+			if ( function_exists( 'set_time_limit' ) ) {
+				set_time_limit( 0 ); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- a long, one-time job the administrator started.
+			}
+			$result = Default_Language::run( $to, $dry_run );
+			if ( is_wp_error( $result ) ) {
+				$message = $result->get_error_message();
+				$type    = 'error';
+			} else {
+				$message = ( $dry_run ? __( 'Dry run, nothing was changed.', 'blocklingo' ) . ' ' : __( 'Done.', 'blocklingo' ) . ' ' ) . Cli::summary( $result );
+				$type    = $dry_run ? 'info' : 'success';
+			}
+		}
+		set_transient(
+			self::result_key(),
+			[
+				'message' => $message,
+				'type'    => $type,
+			],
+			5 * MINUTE_IN_SECONDS
+		);
+		wp_safe_redirect( admin_url( 'options-general.php?page=' . self::SLUG ) );
+		exit;
+	}
+
+	/**
+	 * The "Change the default language" section: its own form, outside the settings form.
+	 *
+	 * @param array $settings Current settings.
+	 */
+	private static function render_switch( array $settings ): void {
+		$others = array_diff_key( Languages::enabled(), [ $settings['default'] => true ] );
+		if ( ! $others ) {
+			return;
+		}
+		$unfinished = Default_Language::unfinished();
+		?>
+		<hr />
+		<h2><?php esc_html_e( 'Change the default language', 'blocklingo' ); ?></h2>
+		<p><?php esc_html_e( 'Makes another language the one content is written in: its translations become the content, and the current content becomes its translation. Blocks without a translation keep their text. Run a dry run first to see what would change, and back up the database before switching.', 'blocklingo' ); ?></p>
+		<?php if ( $unfinished ) : ?>
+			<div class="notice notice-warning inline"><p>
+				<?php
+				/* translators: %s: language code. */
+				echo esc_html( sprintf( __( 'A switch to %s was interrupted. Run it again to finish it.', 'blocklingo' ), $unfinished['to'] ) );
+				?>
+			</p></div>
+		<?php endif; ?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="blocklingo_switch_default" />
+			<?php wp_nonce_field( 'blocklingo_switch_default' ); ?>
+			<p>
+				<label for="blocklingo-switch-to"><?php esc_html_e( 'New default language', 'blocklingo' ); ?></label>
+				<select id="blocklingo-switch-to" name="to">
+					<?php foreach ( $others as $code => $language ) : ?>
+						<option value="<?php echo esc_attr( $code ); ?>" <?php selected( $unfinished['to'] ?? '', $code ); ?>><?php echo esc_html( $language['name'] ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</p>
+			<p>
+				<label><input type="checkbox" name="backup" value="1" /> <?php esc_html_e( 'I have a backup of the database', 'blocklingo' ); ?></label>
+			</p>
+			<p>
+				<button type="submit" class="button" name="dry_run" value="1"><?php esc_html_e( 'Dry run', 'blocklingo' ); ?></button>
+				<button type="submit" class="button button-primary"><?php esc_html_e( 'Change the default language', 'blocklingo' ); ?></button>
+			</p>
+			<p class="description"><?php esc_html_e( 'For large sites, use WP-CLI: wp blocklingo switch-default <code>', 'blocklingo' ); ?></p>
+		</form>
+		<?php
 	}
 
 	/**
@@ -163,7 +256,7 @@ class Settings_Page {
 				'default-changed',
 				sprintf(
 					/* translators: 1: new default language, 2: previous default language. */
-					__( 'The default language is now %1$s. Existing content is treated as written in %1$s; nothing was changed or lost, and choosing %2$s again restores it as it was.', 'blocklingo' ),
+					__( 'The default language is now %1$s. Existing content is treated as written in %1$s; nothing was changed or lost, and choosing %2$s again restores it as it was. To turn translations into content, use "Change the default language" below instead.', 'blocklingo' ),
 					$settings['languages'][ $settings['default'] ]['name'],
 					Languages::get( $previous )['name'] ?? $previous
 				),
@@ -184,15 +277,26 @@ class Settings_Page {
 	}
 
 	/**
-	 * After saving: forget the cached settings and fetch WordPress's own translations for
-	 * new languages, so its texts (dates, "Menu", form messages) appear in them too.
+	 * Whether this request is an administrator saving the Blocklingo settings screen (as
+	 * opposed to the settings changing from code: a switch of the default language, WP-CLI).
+	 */
+	private static function is_settings_form_save(): bool {
+		// options.php has verified the nonce for this option page before saving.
+		$page = isset( $_POST['option_page'] ) ? sanitize_key( wp_unslash( $_POST['option_page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		return is_admin() && self::SLUG === $page;
+	}
+
+	/**
+	 * After saving: forget the cached settings and, when an administrator saved the screen,
+	 * fetch WordPress's own translations for new languages, so its texts (dates, "Menu", form
+	 * messages) appear in them too. Never on other saves: no network requests from code.
 	 *
 	 * @param mixed $old_value Previous value.
 	 * @param mixed $value     New value.
 	 */
 	public static function after_save( $old_value, $value ): void {
 		Languages::flush();
-		if ( ! current_user_can( 'install_languages' ) || ! is_array( $value ) ) {
+		if ( ! self::is_settings_form_save() || ! current_user_can( 'install_languages' ) || ! is_array( $value ) ) {
 			return;
 		}
 		require_once ABSPATH . 'wp-admin/includes/translation-install.php';
@@ -322,6 +426,13 @@ class Settings_Page {
 				return;
 			}
 			?>
+			<?php
+			$result = get_transient( self::result_key() );
+			if ( is_array( $result ) ) {
+				delete_transient( self::result_key() );
+				printf( '<div class="notice notice-%s"><p>%s</p></div>', esc_attr( $result['type'] ), esc_html( $result['message'] ) );
+			}
+			?>
 			<p><?php esc_html_e( 'Content is written in the default language; the other languages are translations of it. Translate in the block editor with the language switch at the top.', 'blocklingo' ); ?></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( self::SLUG ); ?>
@@ -398,6 +509,7 @@ class Settings_Page {
 				</table>
 				<?php submit_button(); ?>
 			</form>
+			<?php self::render_switch( $settings ); ?>
 		</div>
 		<?php
 	}

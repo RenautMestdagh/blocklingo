@@ -137,7 +137,25 @@ class StringsTest extends Blocklingo_TestCase {
 		$clean = Strings::sanitize( $input );
 
 		// Assert.
-		$this->assertSame( [ 'fr' => [ 'g' => [ Strings::key( 'a' ) => [ 'a', 'balert(1)' ] ] ] ], $clean );
+		$this->assertSame(
+			[
+				'nl' => [ 'g' => [ Strings::key( 'a' ) => [ 'a', 'origineel' ] ] ],
+				'fr' => [ 'g' => [ Strings::key( 'a' ) => [ 'a', 'balert(1)' ] ] ],
+			],
+			$clean
+		);
+	}
+
+	public function test_default_language_can_have_translations(): void {
+		// Arrange: a theme text written in French, on a site whose default is Dutch.
+		$this->store( 'nl', 'Thema', 'Prendre rendez-vous', 'Maak een afspraak' );
+		$this->visit( '/' );
+
+		// Act.
+		$text = blocklingo_translate( 'Prendre rendez-vous', 'Thema' );
+
+		// Assert.
+		$this->assertSame( 'Maak een afspraak', $text );
 	}
 
 	public function test_saving_the_screen_keeps_texts_not_on_it(): void {

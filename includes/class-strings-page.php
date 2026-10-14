@@ -67,11 +67,12 @@ class Strings_Page {
 	 * The screen (inside the Blocklingo settings page).
 	 */
 	public static function render(): void {
-		$languages = array_diff_key( Languages::enabled(), [ Languages::default_code() => true ] );
+		// Every language, the default too: texts are in the language they were written in.
+		$languages = Languages::enabled();
 		$groups    = Strings::registered();
 		?>
 		<p><?php esc_html_e( 'Texts that are not in blocks: the site title and tagline, and texts of your theme and plugins that support Blocklingo. An empty field shows the original.', 'blocklingo' ); ?></p>
-		<?php if ( ! $languages ) : ?>
+		<?php if ( count( $languages ) < 2 ) : ?>
 			<p><?php esc_html_e( 'Add a second language first.', 'blocklingo' ); ?></p>
 			<?php
 			return;
@@ -84,7 +85,7 @@ class Strings_Page {
 				<table class="widefat striped blocklingo-strings">
 					<thead>
 						<tr>
-							<th scope="col"><?php echo esc_html( Languages::get( Languages::default_code() )['name'] ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Original', 'blocklingo' ); ?></th>
 							<?php foreach ( $languages as $language ) : ?>
 								<th scope="col"><?php echo esc_html( $language['name'] ); ?></th>
 							<?php endforeach; ?>

@@ -7,6 +7,7 @@
  */
 
 use Blocklingo\Blocks;
+use Blocklingo\Languages;
 use Blocklingo\Posts;
 use Blocklingo\Request;
 use Blocklingo\Router;
@@ -171,6 +172,37 @@ class SecurityTest extends Blocklingo_TestCase {
 			'encoded newline'   => [ '/x%0d%0aLocation:%20https://evil.example/' ],
 			'at sign'           => [ '/@evil.example/' ],
 		];
+	}
+
+	public function test_saving_settings_from_code_makes_no_network_request(): void {
+		// Arrange: an administrator, a new language whose WordPress translation isn't installed.
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+		$requests = [];
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$requests ) {
+				$requests[] = $url;
+				return new WP_Error( 'blocked', 'No requests in this test.' );
+			},
+			10,
+			3
+		);
+		$settings                    = Languages::settings();
+		$settings['languages']['de'] = [
+			'code'    => 'de',
+			'name'    => 'Deutsch',
+			'locale'  => 'de_DE',
+			'slug'    => 'de',
+			'enabled' => true,
+		];
+		$settings['languages']       = array_values( $settings['languages'] );
+
+		// Act.
+		Languages::save( $settings );
+
+		// Assert.
+		$this->assertSame( [], $requests );
+		$this->assertTrue( Languages::is_enabled( 'de' ) );
 	}
 
 	public function test_replace_never_touches_structural_attributes(): void {
