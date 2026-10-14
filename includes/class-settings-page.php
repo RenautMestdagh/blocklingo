@@ -80,7 +80,8 @@ class Settings_Page {
 	 * @return array
 	 */
 	public static function sanitize( $input ): array {
-		$input     = is_array( $input ) ? wp_unslash( $input ) : [];
+		// options.php has already unslashed the submitted value.
+		$input     = is_array( $input ) ? $input : [];
 		$languages = [];
 		$slugs     = [];
 		foreach ( (array) ( $input['languages'] ?? [] ) as $row ) {
@@ -243,14 +244,38 @@ class Settings_Page {
 	}
 
 	/**
+	 * Tabs: languages and strings.
+	 *
+	 * @param string $current Current tab.
+	 */
+	private static function render_tabs( string $current ): void {
+		$tabs = [
+			'languages' => __( 'Languages', 'blocklingo' ),
+			'strings'   => __( 'Strings', 'blocklingo' ),
+		];
+		echo '<nav class="nav-tab-wrapper">';
+		foreach ( $tabs as $tab => $label ) {
+			printf(
+				'<a href="%s" class="nav-tab%s"%s>%s</a>',
+				esc_url( add_query_arg( 'tab', $tab, admin_url( 'options-general.php?page=' . self::SLUG ) ) ),
+				$tab === $current ? ' nav-tab-active' : '',
+				$tab === $current ? ' aria-current="page"' : '',
+				esc_html( $label )
+			);
+		}
+		echo '</nav>';
+	}
+
+	/**
 	 * The screen.
 	 */
 	public static function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+		$tab      = isset( $_GET['tab'] ) && 'strings' === $_GET['tab'] ? 'strings' : 'languages'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- choosing a tab to show.
 		$settings = Languages::settings();
-		$locales  = self::locale_choices();
+		$locales  = 'languages' === $tab ? self::locale_choices() : [];
 		$empty    = [
 			'code'    => '',
 			'name'    => '',
@@ -261,6 +286,15 @@ class Settings_Page {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Blocklingo', 'blocklingo' ); ?></h1>
+			<?php self::render_tabs( $tab ); ?>
+			<?php
+			if ( 'strings' === $tab ) {
+				settings_errors( Strings::OPTION );
+				Strings_Page::render();
+				echo '</div>';
+				return;
+			}
+			?>
 			<p><?php esc_html_e( 'Content is written in the default language; the other languages are translations of it. Translate in the block editor with the language switch at the top.', 'blocklingo' ); ?></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( self::SLUG ); ?>

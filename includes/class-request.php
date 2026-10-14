@@ -55,6 +55,19 @@ class Request {
 	}
 
 	/**
+	 * Switches this request to another enabled language, for requests whose address has no
+	 * language in it (an integration's REST call made from a page in that language).
+	 * Unknown or disabled languages are ignored.
+	 *
+	 * @param string $code Language code.
+	 */
+	public static function use_language( string $code ): void {
+		if ( Languages::is_enabled( $code ) ) {
+			self::$lang = $code;
+		}
+	}
+
+	/**
 	 * Whether the URL had a language prefix.
 	 */
 	public static function is_prefixed(): bool {
