@@ -99,7 +99,7 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 == Changelog ==
 
 = Unreleased =
-* Tables can be translated cell by cell, like any other text.
+* Tables can be translated cell by cell, like any other text (WordPress 6.9 and later: earlier versions don't mark table cells as content).
 * Numbers, prices and codes without words no longer count as untranslated.
 * Typing a translation also works in blocks that update their attributes through a function, like the table in WordPress 7.
 * Language Switcher: show it as a dropdown (for headers) or as a vertical list.

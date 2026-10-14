@@ -15,8 +15,10 @@ use Blocklingo\Blocks;
 class BlocksTest extends Blocklingo_TestCase {
 
 	public function tear_down(): void {
-		if ( WP_Block_Type_Registry::get_instance()->is_registered( 'blocklingo-test/dynamic' ) ) {
-			unregister_block_type( 'blocklingo-test/dynamic' );
+		foreach ( [ 'blocklingo-test/dynamic', 'blocklingo-test/list' ] as $name ) {
+			if ( WP_Block_Type_Registry::get_instance()->is_registered( $name ) ) {
+				unregister_block_type( $name );
+			}
 		}
 		parent::tear_down();
 	}
@@ -238,13 +240,45 @@ class BlocksTest extends Blocklingo_TestCase {
 	}
 
 	public function test_lists_with_text_in_their_items_are_translatable(): void {
-		// Arrange.
-		$block_name = 'core/table';
+		// Arrange: rows of cells with text (like a table), and a list without text.
+		$cell = [
+			'type'   => 'rich-text',
+			'source' => 'rich-text',
+			'role'   => 'content',
+		];
+		register_block_type(
+			'blocklingo-test/list',
+			[
+				'attributes' => [
+					'rows'  => [
+						'type'   => 'array',
+						'source' => 'query',
+						'query'  => [
+							'cells' => [
+								'type'   => 'array',
+								'source' => 'query',
+								'query'  => [ 'content' => $cell ],
+							],
+						],
+					],
+					'links' => [
+						'type'   => 'array',
+						'source' => 'query',
+						'query'  => [
+							'url' => [
+								'type'   => 'string',
+								'source' => 'attribute',
+							],
+						],
+					],
+				],
+			]
+		);
 
 		// Act.
-		$names = Blocks::translatable_attributes( $block_name );
+		$names = Blocks::translatable_attributes( 'blocklingo-test/list' );
 
 		// Assert.
-		$this->assertEqualsCanonicalizing( [ 'caption', 'head', 'body', 'foot' ], $names );
+		$this->assertSame( [ 'rows' ], $names );
 	}
 }
