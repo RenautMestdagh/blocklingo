@@ -61,9 +61,15 @@ class Switcher_Block {
 				esc_html( $text )
 			);
 		}
+		$label = esc_attr__( 'Language', 'blocklingo' );
+		// Outside a block render (called from PHP) there are no block supports to apply; WordPress
+		// before 6.7 even fails on it.
+		$wrapper = \WP_Block_Supports::$block_to_render
+			? get_block_wrapper_attributes( [ 'aria-label' => $label ] )
+			: 'class="wp-block-blocklingo-language-switcher" aria-label="' . $label . '"';
 		return sprintf(
 			'<nav %1$s><ul class="wp-block-blocklingo-language-switcher__list">%2$s</ul></nav>',
-			get_block_wrapper_attributes( [ 'aria-label' => esc_attr__( 'Language', 'blocklingo' ) ] ),
+			$wrapper,
 			$items
 		);
 	}
