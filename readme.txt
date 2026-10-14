@@ -101,6 +101,7 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 = Unreleased =
 * Tables can be translated cell by cell, like any other text.
 * Numbers, prices and codes without words no longer count as untranslated.
+* Typing a translation also works in blocks that update their attributes through a function, like the table in WordPress 7.
 
 = 0.2.0 =
 * Classic themes: menus from Appearance → Menus get a label, title attribute and address per language.

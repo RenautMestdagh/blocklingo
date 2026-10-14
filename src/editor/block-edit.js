@@ -102,13 +102,16 @@ export const withTranslation = createHigherOrderComponent(
 						active
 							? splitUpdates(
 									attributes,
-									updates,
+									// Blocks like the table pass a function of their attributes.
+									typeof updates === 'function'
+										? updates( shown )
+										: updates,
 									language,
 									names
 								)
 							: updates
 					),
-				[ active, attributes, language, names, setAttributes ]
+				[ active, attributes, language, names, setAttributes, shown ]
 			);
 
 			if ( ! active ) {
