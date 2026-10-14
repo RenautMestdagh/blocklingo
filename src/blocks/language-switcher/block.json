@@ -18,6 +18,16 @@
 		"showCurrent": {
 			"type": "boolean",
 			"default": true
+		},
+		"display": {
+			"type": "string",
+			"enum": [ "list", "dropdown" ],
+			"default": "list"
+		},
+		"orientation": {
+			"type": "string",
+			"enum": [ "horizontal", "vertical" ],
+			"default": "horizontal"
 		}
 	},
 	"supports": {

@@ -16,20 +16,23 @@ import { STORE_NAME } from './store';
 import {
 	acceptOutdated,
 	getBlockStatus,
-	getTranslatableAttributes,
+	getLinkAttributes,
+	getTextPaths,
 	getTranslatedAttributes,
+	getValue,
+	setValue,
 	splitUpdates,
 } from './translations';
 
 /**
- * Translatable attributes of a block type, cached per name.
+ * Where a block holds text to translate (see getTextPaths).
+ *
+ * @param {string} name       Block name.
+ * @param {Object} attributes Block attributes.
+ * @return {string[]} Paths.
  */
-const cache = new Map();
-export function translatableAttributesOf( name ) {
-	if ( ! cache.has( name ) ) {
-		cache.set( name, getTranslatableAttributes( getBlockType( name ) ) );
-	}
-	return cache.get( name );
+export function textPathsOf( name, attributes ) {
+	return getTextPaths( getBlockType( name ), attributes );
 }
 
 /**
@@ -65,8 +68,19 @@ export const withTranslation = createHigherOrderComponent(
 		function BlocklingoBlockEdit( props ) {
 			const language = useTranslationLanguage();
 			const { name, attributes, setAttributes } = props;
-			const names = translatableAttributesOf( name );
-			const active = !! language && names.length > 0;
+			const names = useMemo(
+				() => textPathsOf( name, attributes ),
+				[ name, attributes ]
+			);
+			// Text and links: typing either writes the translation.
+			const editable = useMemo(
+				() => [
+					...names,
+					...getLinkAttributes( getBlockType( name ) ),
+				],
+				[ name, names ]
+			);
+			const active = !! language && editable.length > 0;
 
 			const shown = useMemo( () => {
 				if ( ! active ) {
@@ -75,16 +89,21 @@ export const withTranslation = createHigherOrderComponent(
 				const translated = getTranslatedAttributes(
 					attributes,
 					language,
-					names
+					editable
 				);
-				names.forEach( ( key ) => {
-					translated[ key ] = asOriginalType(
-						attributes[ key ],
-						translated[ key ]
-					);
-				} );
-				return translated;
-			}, [ active, attributes, language, names ] );
+				return editable.reduce(
+					( typed, path ) =>
+						setValue(
+							typed,
+							path,
+							asOriginalType(
+								getValue( attributes, path ),
+								getValue( translated, path )
+							)
+						),
+					translated
+				);
+			}, [ active, attributes, language, editable ] );
 
 			const setShown = useCallback(
 				( updates ) =>
@@ -92,13 +111,16 @@ export const withTranslation = createHigherOrderComponent(
 						active
 							? splitUpdates(
 									attributes,
-									updates,
+									// Blocks like the table pass a function of their attributes.
+									typeof updates === 'function'
+										? updates( shown )
+										: updates,
 									language,
-									names
+									editable
 								)
 							: updates
 					),
-				[ active, attributes, language, names, setAttributes ]
+				[ active, attributes, language, editable, setAttributes, shown ]
 			);
 
 			if ( ! active ) {
@@ -150,7 +172,7 @@ export const withTranslationStatus = createHigherOrderComponent(
 	( BlockListBlock ) =>
 		function BlocklingoBlockListBlock( props ) {
 			const language = useTranslationLanguage();
-			const names = translatableAttributesOf( props.name );
+			const names = textPathsOf( props.name, props.attributes );
 			if ( ! language || ! names.length ) {
 				return <BlockListBlock { ...props } />;
 			}

@@ -24,7 +24,7 @@ Blocklingo makes a WordPress site multilingual without duplicating pages. You wr
 * **Language prefixes** in the URL for every language, optionally also for the default one (`/en/` …). Old addresses are redirected permanently.
 * **Search engines**: `hreflang` links for every language plus `x-default`, the right `lang` on the page, and every translated address in WordPress's own sitemap.
 * **WordPress itself in the visitor's language**: its own texts (dates, buttons, form messages) follow the language of the page; translations are installed when you add a language.
-* **Language Switcher block** for your header or footer, linking to the same page in the other languages.
+* **Language Switcher block** for your header or footer, linking to the same page in the other languages: as a horizontal or vertical list, or as a dropdown.
 * **Texts outside blocks**: the site title, the tagline and texts of themes and plugins that support Blocklingo (or WPML's string functions) are translated under Settings → Blocklingo → Strings.
 * **Contact Form 7**: labels, placeholders, messages and the auto-reply in every language; messages after sending come back in the language of the page.
 * **Optional machine translation**: with your own DeepL API key, fill in all untranslated blocks of a page with one click, then check and adjust.
@@ -97,6 +97,13 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 3. Settings → Blocklingo → Strings: the site title, tagline and texts of themes and plugins in every language.
 
 == Changelog ==
+
+= Unreleased =
+* Tables can be translated cell by cell, like any other text (WordPress 6.9 and later: earlier versions don't mark table cells as content).
+* Numbers, prices and codes without words no longer count as untranslated.
+* Typing a translation also works in blocks that update their attributes through a function, like the table in WordPress 7.
+* Language Switcher: show it as a dropdown (for headers) or as a vertical list.
+* Links can differ per language: while translating, a button's, menu item's, social icon's, image's or file's link is stored for that language only. Links don't count as untranslated.
 
 = 0.2.0 =
 * Classic themes: menus from Appearance → Menus get a label, title attribute and address per language.

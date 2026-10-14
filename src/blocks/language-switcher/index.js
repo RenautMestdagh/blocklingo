@@ -12,11 +12,59 @@ import metadata from './block.json';
 import './style.scss';
 
 function Edit( { attributes, setAttributes } ) {
-	const { label, showCurrent } = attributes;
+	const { label, showCurrent, display, orientation } = attributes;
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings', 'blocklingo' ) }>
+					<SelectControl
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+						label={ __( 'Display', 'blocklingo' ) }
+						help={
+							display === 'dropdown'
+								? __(
+										'Shows the current language; the others open below it. Fits a header.',
+										'blocklingo'
+									)
+								: undefined
+						}
+						value={ display }
+						options={ [
+							{
+								label: __( 'List', 'blocklingo' ),
+								value: 'list',
+							},
+							{
+								label: __( 'Dropdown', 'blocklingo' ),
+								value: 'dropdown',
+							},
+						] }
+						onChange={ ( value ) =>
+							setAttributes( { display: value } )
+						}
+					/>
+					{ display === 'list' && (
+						<SelectControl
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
+							label={ __( 'Orientation', 'blocklingo' ) }
+							value={ orientation }
+							options={ [
+								{
+									label: __( 'Horizontal', 'blocklingo' ),
+									value: 'horizontal',
+								},
+								{
+									label: __( 'Vertical', 'blocklingo' ),
+									value: 'vertical',
+								},
+							] }
+							onChange={ ( value ) =>
+								setAttributes( { orientation: value } )
+							}
+						/>
+					) }
 					<SelectControl
 						__nextHasNoMarginBottom
 						__next40pxDefaultSize
