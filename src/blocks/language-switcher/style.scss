@@ -2,6 +2,29 @@
  * Language Switcher: a row or column of links, or a dropdown.
  * Colours, spacing and type come from the block settings.
  */
+
+/*
+ * Align and justification move the links: the block itself is full width.
+ * Static rules, as on core's Buttons, because the editor previews the
+ * block without the layout styles WordPress generates for it.
+ */
+.wp-block-blocklingo-language-switcher {
+
+	&.aligncenter,
+	&.is-content-justification-center {
+		justify-content: center;
+	}
+
+	&.alignright,
+	&.is-content-justification-right {
+		justify-content: flex-end;
+	}
+
+	&.is-content-justification-space-between {
+		justify-content: space-between;
+	}
+}
+
 .wp-block-blocklingo-language-switcher__list {
 	display: flex;
 	flex-wrap: wrap;

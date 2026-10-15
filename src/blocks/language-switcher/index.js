@@ -4,7 +4,12 @@
  */
 import { registerBlockType } from '@wordpress/blocks';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
+import {
+	Disabled,
+	PanelBody,
+	SelectControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
 
@@ -98,11 +103,13 @@ function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...useBlockProps() }>
-				<ServerSideRender
-					block={ metadata.name }
-					attributes={ attributes }
-					skipBlockSupportAttributes
-				/>
+				<Disabled>
+					<ServerSideRender
+						block={ metadata.name }
+						attributes={ attributes }
+						skipBlockSupportAttributes
+					/>
+				</Disabled>
 			</div>
 		</>
 	);
