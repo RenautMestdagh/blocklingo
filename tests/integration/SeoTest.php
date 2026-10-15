@@ -175,6 +175,6 @@ class SeoTest extends Blocklingo_TestCase {
 		);
 
 		// Assert.
-		$this->assertStringContainsString( 'lang="fr-FR" aria-label="Français">FR</button>', $html );
+		$this->assertStringContainsString( 'lang="fr-FR" aria-label="FR, Français">FR</button>', $html );
 	}
 }
