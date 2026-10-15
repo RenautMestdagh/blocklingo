@@ -128,7 +128,9 @@ the address in the current language. For a URL you build from a string, use
 
 ## Example
 
-The [Logopedie theme](https://github.com/RenautMestdagh/logopedie-theme) (a block theme) needed
-only: its own settings page's texts through `blocklingo_translate()` with a raw getter for the
-settings screen, three texts of its own block through a small helper, and `og:locale` from
-`get_locale()`. Everything in blocks was translated without changes.
+The [Kalm theme](https://github.com/RenautMestdagh/kalm) (a block theme) needed nothing: its
+texts are in blocks and patterns, and its header and mobile menu show the language switcher when
+Blocklingo is active. The [Site Details](https://github.com/RenautMestdagh/site-details) plugin,
+which shows the business details in Kalm, registers them with `blocklingo_register_string()` and
+shows them through `blocklingo_translate()`, keeping the untranslated value for its settings screen,
+and takes `og:locale` from `get_locale()`.
