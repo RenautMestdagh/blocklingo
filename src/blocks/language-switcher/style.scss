@@ -2,6 +2,22 @@
  * Language Switcher: a row or column of links, or a dropdown.
  * Colours, spacing and type come from the block settings.
  */
+
+/*
+ * Align moves the links, as on core's Social Icons: the block itself is
+ * full width.
+ */
+.wp-block-blocklingo-language-switcher {
+
+	&.aligncenter {
+		justify-content: center;
+	}
+
+	&.alignright {
+		justify-content: flex-end;
+	}
+}
+
 .wp-block-blocklingo-language-switcher__list {
 	display: flex;
 	flex-wrap: wrap;
