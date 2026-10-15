@@ -4,17 +4,24 @@
  */
 
 /*
- * Align moves the links, as on core's Social Icons: the block itself is
- * full width.
+ * Align and justification move the links: the block itself is full width.
+ * Static rules, as on core's Buttons, because the editor previews the
+ * block without the layout styles WordPress generates for it.
  */
 .wp-block-blocklingo-language-switcher {
 
-	&.aligncenter {
+	&.aligncenter,
+	&.is-content-justification-center {
 		justify-content: center;
 	}
 
-	&.alignright {
+	&.alignright,
+	&.is-content-justification-right {
 		justify-content: flex-end;
+	}
+
+	&.is-content-justification-space-between {
+		justify-content: space-between;
 	}
 }
 
