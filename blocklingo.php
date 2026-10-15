@@ -3,7 +3,7 @@
  * Plugin Name:       Blocklingo
  * Plugin URI:        https://github.com/RenautMestdagh/blocklingo
  * Description:       Multilingual WordPress, block by block. Translate pages, templates, headers, footers and menus right in the block editor, with translated URLs and hreflang. Free, no external service needed.
- * Version:           0.3.1
+ * Version:           0.3.2
  * Requires at least: 6.6
  * Requires PHP:      7.4
  * Author:            Renaut Mestdagh
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BLOCKLINGO_VERSION', '0.3.1' );
+define( 'BLOCKLINGO_VERSION', '0.3.2' );
 define( 'BLOCKLINGO_FILE', __FILE__ );
 define( 'BLOCKLINGO_DIR', __DIR__ );
 
