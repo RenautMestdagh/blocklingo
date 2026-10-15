@@ -72,10 +72,11 @@ class Switcher_Block {
 		);
 		if ( $dropdown && isset( $languages[ $current ] ) ) {
 			$name = $languages[ $current ]['name'];
+			// Voice control users say what they see ("FR"): the name a screen reader hears starts with it.
 			$list = sprintf(
 				'<div class="wp-block-blocklingo-language-switcher__dropdown"><button type="button" class="wp-block-blocklingo-language-switcher__toggle" lang="%1$s"%2$s>%3$s</button>%4$s</div>',
 				esc_attr( Languages::html_lang( $current ) ),
-				$by_code ? ' aria-label="' . esc_attr( $name ) . '"' : '',
+				$by_code ? ' aria-label="' . esc_attr( strtoupper( $current ) . ', ' . $name ) . '"' : '',
 				esc_html( $by_code ? strtoupper( $current ) : $name ),
 				$list
 			);
