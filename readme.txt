@@ -4,7 +4,7 @@ Tags: multilingual, translation, language switcher, hreflang, block editor
 Requires at least: 6.6
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.2
+Stable tag: 0.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,9 @@ DeepL's terms: https://www.deepl.com/pro-license and privacy policy: https://www
 3. Settings → Blocklingo → Strings: the site title, tagline and texts of themes and plugins in every language.
 
 == Changelog ==
+
+= 0.3.3 =
+* WordPress looks for updates of this plugin on GitHub only, so a WordPress.org plugin with the same name is never offered as an update.
 
 = 0.3.2 =
 * Language Switcher: the dropdown's button is named after what it shows ("FR, Français"), so voice control users can say it.
