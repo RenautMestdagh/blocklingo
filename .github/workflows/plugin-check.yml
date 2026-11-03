@@ -28,3 +28,5 @@ jobs:
       - uses: wordpress/plugin-check-action@v1
         with:
           build-dir: /tmp/blocklingo
+          # The WordPress.org slug belongs to another plugin; updates come from GitHub (Update URI).
+          ignore-codes: plugin_updater_detected
