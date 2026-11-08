@@ -13,6 +13,9 @@ concurrency:
 jobs:
   plugin-check:
     runs-on: ubuntu-latest
+    env:
+      # The plugin requires PHP 8.4; wp-env would start on its default (8.3) and refuse to activate it
+      WP_ENV_PHP_VERSION: '8.4'
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v4
