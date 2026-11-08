@@ -2,7 +2,7 @@ name: blocklingo
 type: wordpress
 # WordPress lives in wordpress/ (not committed); the plugin is linked into it on start.
 docroot: wordpress
-php_version: "8.3"
+php_version: "8.4"
 webserver_type: nginx-fpm
 xdebug_enabled: false
 additional_hostnames: []

@@ -4,8 +4,8 @@
  * Plugin URI:        https://github.com/RenautMestdagh/blocklingo
  * Description:       Multilingual WordPress, block by block. Translate pages, templates, headers, footers and menus right in the block editor, with translated URLs and hreflang. Free, no external service needed.
  * Version:           0.3.3
- * Requires at least: 6.6
- * Requires PHP:      7.4
+ * Requires at least: 6.9
+ * Requires PHP:      8.4
  * Author:            Renaut Mestdagh
  * Author URI:        https://github.com/RenautMestdagh
  * License:           GPL-2.0-or-later

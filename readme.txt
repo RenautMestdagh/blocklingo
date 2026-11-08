@@ -1,9 +1,9 @@
 === Blocklingo ===
 Contributors: renautmestdagh
 Tags: multilingual, translation, language switcher, hreflang, block editor
-Requires at least: 6.6
+Requires at least: 6.9
 Tested up to: 7.1
-Requires PHP: 7.4
+Requires PHP: 8.4
 Stable tag: 0.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
