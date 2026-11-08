@@ -13,6 +13,7 @@
 /.gitattributes
 /.gitignore
 /.nvmrc
+/.wp-env.json
 /.phpunit.result.cache
 /composer.json
 /composer.lock
