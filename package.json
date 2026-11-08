@@ -49,5 +49,11 @@
 		"assets",
 		"build",
 		"languages"
-	]
+	],
+	"overrides": {
+		"katex": "^0.19.1",
+		"markdownlint-cli": "^0.50.0",
+		"minimatch@10": "^11.0.5",
+		"serialize-javascript": "^7.1.4"
+	}
 }
